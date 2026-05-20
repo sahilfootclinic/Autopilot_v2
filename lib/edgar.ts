@@ -228,6 +228,133 @@ export async function getFilingHoldings(
   };
 }
 
+export type PositionChange = {
+  cusip: string;
+  nameOfIssuer: string;
+  titleOfClass: string;
+  prevShares: number;
+  currShares: number;
+  prevValue: number;
+  currValue: number;
+  sharesDelta: number;
+  valueDelta: number;
+  pctChange: number; // share-count change as a fraction (1.0 = +100%); Infinity for new
+  kind: "new" | "increased" | "reduced" | "sold" | "unchanged";
+};
+
+export type QoQDiff = {
+  prevReportDate: string;
+  prevAccession: string;
+  newPositions: PositionChange[];
+  increased: PositionChange[];
+  reduced: PositionChange[];
+  soldOut: PositionChange[];
+};
+
+function aggregateByCusip(holdings: Holding[]): Map<
+  string,
+  { shares: number; value: number; sample: Holding }
+> {
+  const m = new Map<string, { shares: number; value: number; sample: Holding }>();
+  for (const h of holdings) {
+    if (!h.cusip) continue;
+    // Skip option/derivative rows for cleaner diffing.
+    if (h.putCall) continue;
+    const cur = m.get(h.cusip);
+    if (cur) {
+      cur.shares += h.shares;
+      cur.value += h.value;
+    } else {
+      m.set(h.cusip, { shares: h.shares, value: h.value, sample: h });
+    }
+  }
+  return m;
+}
+
+export async function getQoQDiff(
+  cik: string,
+  accessionRaw: string
+): Promise<QoQDiff | null> {
+  const filings = await get13FFilings(cik);
+  const idx = filings.findIndex((f) => f.accessionRaw === accessionRaw);
+  if (idx < 0) return null;
+  const prev = filings.slice(idx + 1).find((f) => f.form === "13F-HR");
+  if (!prev) return null;
+
+  const [curr, prior] = await Promise.all([
+    getFilingHoldings(cik, accessionRaw),
+    getFilingHoldings(cik, prev.accessionRaw),
+  ]);
+  if (!curr || !prior) return null;
+
+  const currMap = aggregateByCusip(curr.holdings);
+  const prevMap = aggregateByCusip(prior.holdings);
+
+  const allCusips = new Set<string>([...currMap.keys(), ...prevMap.keys()]);
+  const newPositions: PositionChange[] = [];
+  const increased: PositionChange[] = [];
+  const reduced: PositionChange[] = [];
+  const soldOut: PositionChange[] = [];
+
+  for (const cusip of allCusips) {
+    const c = currMap.get(cusip);
+    const p = prevMap.get(cusip);
+    const sample = c?.sample ?? p?.sample;
+    if (!sample) continue;
+    const currShares = c?.shares ?? 0;
+    const prevShares = p?.shares ?? 0;
+    const currValue = c?.value ?? 0;
+    const prevValue = p?.value ?? 0;
+    const sharesDelta = currShares - prevShares;
+    const valueDelta = currValue - prevValue;
+    const pctChange =
+      prevShares > 0
+        ? sharesDelta / prevShares
+        : currShares > 0
+        ? Infinity
+        : 0;
+
+    let kind: PositionChange["kind"] = "unchanged";
+    if (prevShares === 0 && currShares > 0) kind = "new";
+    else if (prevShares > 0 && currShares === 0) kind = "sold";
+    else if (sharesDelta > 0) kind = "increased";
+    else if (sharesDelta < 0) kind = "reduced";
+
+    const change: PositionChange = {
+      cusip,
+      nameOfIssuer: sample.nameOfIssuer,
+      titleOfClass: sample.titleOfClass,
+      prevShares,
+      currShares,
+      prevValue,
+      currValue,
+      sharesDelta,
+      valueDelta,
+      pctChange,
+      kind,
+    };
+
+    if (kind === "new") newPositions.push(change);
+    else if (kind === "sold") soldOut.push(change);
+    else if (kind === "increased") increased.push(change);
+    else if (kind === "reduced") reduced.push(change);
+  }
+
+  newPositions.sort((a, b) => b.currValue - a.currValue);
+  soldOut.sort((a, b) => b.prevValue - a.prevValue);
+  increased.sort((a, b) => b.valueDelta - a.valueDelta);
+  reduced.sort((a, b) => a.valueDelta - b.valueDelta); // most negative first
+
+  return {
+    prevReportDate: prev.reportDate,
+    prevAccession: prev.accessionRaw,
+    newPositions,
+    increased,
+    reduced,
+    soldOut,
+  };
+}
+
 export type FilerSearchHit = {
   cik: string;
   name: string;

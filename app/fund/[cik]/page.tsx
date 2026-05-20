@@ -4,6 +4,7 @@ import {
   get13FFilings,
   getFilerProfile,
   getFilingHoldings,
+  getQoQDiff,
 } from "@/lib/edgar";
 import { getInvestor } from "@/lib/investors";
 import {
@@ -14,6 +15,7 @@ import {
   quarterLabel,
 } from "@/lib/format";
 import { HoldingsTable } from "@/components/HoldingsTable";
+import { ChangesPanel } from "@/components/ChangesPanel";
 
 export const revalidate = 21600;
 
@@ -42,7 +44,10 @@ export default async function FundPage({
 
   const selected =
     filings.find((f) => f.accessionRaw === accession) ?? filings[0];
-  const holdings = await getFilingHoldings(cik, selected.accessionRaw);
+  const [holdings, diff] = await Promise.all([
+    getFilingHoldings(cik, selected.accessionRaw),
+    getQoQDiff(cik, selected.accessionRaw).catch(() => null),
+  ]);
 
   const investor = getInvestor(cik);
   const displayManager = investor?.manager ?? profile.name;
@@ -139,6 +144,16 @@ export default async function FundPage({
           })}
         </div>
       </div>
+
+      {/* Changes vs prior quarter */}
+      {diff && (
+        <div className="mt-12">
+          <ChangesPanel
+            diff={diff}
+            currentQuarter={quarterLabel(selected.reportDate)}
+          />
+        </div>
+      )}
 
       {/* Holdings */}
       <div className="mt-12">
