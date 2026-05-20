@@ -1,14 +1,43 @@
 import Link from "next/link";
-import { FEATURED_INVESTORS } from "@/lib/investors";
+import {
+  FEATURED_INVESTORS,
+  popularInvestors,
+  tradableInvestors,
+} from "@/lib/investors";
 import { FundCard } from "@/components/FundCard";
+import { PopularRow } from "@/components/PerformerRow";
 import { SearchBar } from "@/components/SearchBar";
+import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
+import { getPerformanceForAll } from "@/lib/performance";
 
-export const revalidate = 21600; // 6h
+export const revalidate = 21600;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const tradable = tradableInvestors();
+  const ciks = tradable.map((i) => i.cik!);
+  const perfMap = await getPerformanceForAll(ciks).catch(
+    () => new Map()
+  );
+
+  const perfRows: PerfRow[] = tradable.map((inv) => {
+    const p = perfMap.get(inv.cik!);
+    return {
+      cik: inv.cik!,
+      values: {
+        "1Q": p?.results["1Q"]?.deltaPct,
+        "6M": p?.results["6M"]?.deltaPct,
+        "1Y": p?.results["1Y"]?.deltaPct,
+        "2Y": p?.results["2Y"]?.deltaPct,
+      },
+    };
+  });
+
+  const popular = popularInvestors().slice(0, 6);
+
   return (
     <>
       <Hero />
+      <PerformanceSection investors={tradable} perfRows={perfRows} popular={popular} perfMap={perfMap} />
       <Featured />
       <HowItWorks />
     </>
@@ -18,7 +47,7 @@ export default function HomePage() {
 function Hero() {
   return (
     <section className="hero-gradient">
-      <div className="mx-auto max-w-page px-6 pt-20 pb-16 md:pt-28 md:pb-24 text-center">
+      <div className="mx-auto max-w-page px-6 pt-20 pb-12 md:pt-28 md:pb-16 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-3 py-1 text-xs font-medium text-ink-600 mb-6">
           <span className="ticker-dot" />
           Latest 13F filings, refreshed every quarter
@@ -29,35 +58,69 @@ function Hero() {
           <span className="gradient-text">smartest investors.</span>
         </h1>
         <p className="mt-6 text-lg md:text-xl text-ink-500 max-w-2xl mx-auto">
-          See exactly what Buffett, Burry, Ackman and 20+ legendary fund managers
+          See exactly what Buffett, Burry, Ackman and 25+ legendary fund managers
           are buying and selling. Pulled straight from the SEC.
         </p>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />
-        </div>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-ink-500">
-          <span className="flex items-center gap-2">
-            <CheckIcon /> Official SEC data
-          </span>
-          <span className="flex items-center gap-2">
-            <CheckIcon /> 20+ legendary investors
-          </span>
-          <span className="flex items-center gap-2">
-            <CheckIcon /> Free forever
-          </span>
         </div>
       </div>
     </section>
   );
 }
 
+function PerformanceSection({
+  investors,
+  perfRows,
+  popular,
+  perfMap,
+}: {
+  investors: ReturnType<typeof tradableInvestors>;
+  perfRows: PerfRow[];
+  popular: ReturnType<typeof popularInvestors>;
+  perfMap: Awaited<ReturnType<typeof getPerformanceForAll>>;
+}) {
+  return (
+    <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <TopPerformers investors={investors} perf={perfRows} />
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold tracking-tight">Popular</h2>
+          <Link
+            href="/search"
+            className="text-sm text-ink-600 hover:text-ink-900"
+          >
+            Browse all →
+          </Link>
+        </div>
+        <div className="bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
+          {popular.map((inv) => {
+            const p = inv.cik ? perfMap.get(inv.cik) : undefined;
+            return (
+              <PopularRow
+                key={inv.cik ?? inv.slug}
+                investor={inv}
+                amount={p?.currentValueUsd}
+                subtitle={inv.comingSoon ? "Coming soon" : undefined}
+              />
+            );
+          })}
+        </div>
+        <p className="text-xs text-ink-400 mt-3">
+          Hand-picked: famous funds, AI portfolios, and synthetic strategies.
+        </p>
+      </section>
+    </section>
+  );
+}
+
 function Featured() {
   return (
-    <section className="mx-auto max-w-page px-6 py-16">
+    <section className="mx-auto max-w-page px-6 py-12">
       <div className="flex items-end justify-between mb-8">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
-            Featured investors
+            All featured investors
           </h2>
           <p className="text-ink-500 mt-2">
             Tap any fund to see their latest quarter's holdings.
@@ -72,7 +135,7 @@ function Featured() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {FEATURED_INVESTORS.map((inv) => (
-          <FundCard key={inv.cik} investor={inv} />
+          <FundCard key={inv.cik ?? inv.slug} investor={inv} />
         ))}
       </div>
     </section>
@@ -84,7 +147,7 @@ function HowItWorks() {
     {
       n: "01",
       title: "Pick an investor",
-      body: "Browse 20+ hand-picked legends — or search any 13F filer by name.",
+      body: "Browse 25+ hand-picked legends — or search any 13F filer by name.",
     },
     {
       n: "02",
@@ -121,19 +184,5 @@ function HowItWorks() {
         </div>
       </div>
     </section>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M20 6L9 17l-5-5"
-        stroke="#0F9D58"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

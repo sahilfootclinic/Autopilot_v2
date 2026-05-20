@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Investor } from "@/lib/investors";
+import { Avatar } from "./Avatar";
 
 const CATEGORY_LABEL: Record<Investor["category"], string> = {
   value: "Value",
@@ -8,48 +9,24 @@ const CATEGORY_LABEL: Record<Investor["category"], string> = {
   quant: "Quant",
   growth: "Growth",
   contrarian: "Contrarian",
+  politician: "Politician",
+  ai: "AI",
+  themed: "Themed",
 };
 
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((p) => p[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-function avatarColor(cik: string): string {
-  const colors = [
-    "#0F9D58",
-    "#1A73E8",
-    "#9334E6",
-    "#D93025",
-    "#F29900",
-    "#188038",
-    "#1967D2",
-    "#A142F4",
-  ];
-  let h = 0;
-  for (let i = 0; i < cik.length; i++) h = (h * 31 + cik.charCodeAt(i)) >>> 0;
-  return colors[h % colors.length];
+export function investorHref(inv: Investor): string {
+  if (inv.cik) return `/fund/${inv.cik}`;
+  return `/themed/${inv.slug}`;
 }
 
 export function FundCard({ investor }: { investor: Investor }) {
-  const bg = avatarColor(investor.cik);
   return (
     <Link
-      href={`/fund/${investor.cik}`}
+      href={investorHref(investor)}
       className="group block bg-white rounded-2xl border border-ink-100 p-6 shadow-card hover:shadow-cardHover hover:-translate-y-0.5 transition"
     >
       <div className="flex items-center gap-4">
-        <div
-          className="h-12 w-12 rounded-full flex items-center justify-center text-white font-semibold text-base"
-          style={{ background: bg }}
-        >
-          {initials(investor.manager)}
-        </div>
+        <Avatar investor={investor} size={48} />
         <div className="min-w-0">
           <h3 className="font-semibold text-ink-900 truncate">
             {investor.manager}
@@ -65,7 +42,7 @@ export function FundCard({ investor }: { investor: Investor }) {
           {CATEGORY_LABEL[investor.category]}
         </span>
         <span className="text-sm font-medium text-ink-700 group-hover:text-accent transition">
-          View holdings →
+          {investor.comingSoon ? "Coming soon →" : "View holdings →"}
         </span>
       </div>
     </Link>
