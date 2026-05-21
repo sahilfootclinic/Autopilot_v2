@@ -13,6 +13,7 @@ import { PopularRow } from "@/components/PerformerRow";
 import { SearchBar } from "@/components/SearchBar";
 import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
+import { WatchlistSection } from "@/components/WatchlistSection";
 import { getPerformanceForAll } from "@/lib/performance";
 
 export const revalidate = 21600;
@@ -39,17 +40,20 @@ export default async function HomePage() {
   });
 
   const popular = popularInvestors().slice(0, 6);
+  const allEntries = entriesAll();
 
   return (
     <>
       <Hero />
+
+      <WatchlistSection all={allEntries} />
 
       <BrowseTabs
         hedge={entriesHedgeFunds()}
         ai={entriesAI()}
         politicians={entriesPoliticians()}
         twitter={entriesTwitterLegends()}
-        all={entriesAll()}
+        all={allEntries}
       />
 
       <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">

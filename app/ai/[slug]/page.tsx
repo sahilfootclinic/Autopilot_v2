@@ -4,6 +4,7 @@ import { getAiPortfolio, AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
 import { TickerLink } from "@/components/TickerLink";
+import { WatchlistButton } from "@/components/WatchlistButton";
 import { getBio } from "@/data/bios";
 import { photoOrBot } from "@/lib/avatars";
 import { getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
@@ -63,7 +64,7 @@ export default async function AiPortfolioPage({
         <span className="text-ink-700">{portfolio.name}</span>
       </div>
 
-      <header className="flex flex-col md:flex-row md:items-center gap-5">
+      <header className="flex items-center gap-5">
         <Avatar
           seed={portfolio.slug}
           label={portfolio.model}
@@ -71,7 +72,7 @@ export default async function AiPortfolioPage({
           shape="squircle"
           size={72}
         />
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
             {portfolio.name}
           </h1>
@@ -79,6 +80,11 @@ export default async function AiPortfolioPage({
             Managed by {portfolio.model} · methodology by {portfolio.manager}
           </p>
         </div>
+        <WatchlistButton
+          slug={portfolio.slug}
+          size={24}
+          className="rounded-full border border-ink-200 p-2 hover:bg-ink-50"
+        />
       </header>
 
       <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
