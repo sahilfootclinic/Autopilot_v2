@@ -13,17 +13,19 @@ export function FundCard({ entry }: { entry: CatalogEntry }) {
         <div className="flex items-center gap-4 pr-9">
           <Avatar
             seed={entry.slug}
-            label={entry.manager}
+            label={entry.primary}
             image={entry.image}
+            imageZoom={entry.imageZoom}
+            imageFocus={entry.imageFocus}
             badge={entry.avatarBadge}
             badgeColor={entry.avatarBadgeColor}
             size={48}
           />
           <div className="min-w-0">
             <h3 className="font-semibold text-ink-900 truncate">
-              {entry.name}
+              {entry.primary}
             </h3>
-            <p className="text-sm text-ink-500 truncate">{entry.manager}</p>
+            <p className="text-sm text-ink-500 truncate">{entry.secondary}</p>
           </div>
         </div>
         <p className="mt-5 text-ink-700 text-[15px] leading-relaxed line-clamp-2">

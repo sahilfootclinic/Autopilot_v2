@@ -46,21 +46,11 @@ export const INVESTORS_13F: Investor[] = [
   { cik: "1009207", slug: "de-shaw", name: "D. E. Shaw", manager: "David E. Shaw", tagline: "Pioneer of quant trading", category: "quant" },
   { cik: "1536411", slug: "duquesne", name: "Duquesne Family Office", manager: "Stanley Druckenmiller", tagline: "Macro legend", category: "macro" },
   { cik: "1173334", slug: "pabrai", name: "Pabrai Investment Funds", manager: "Mohnish Pabrai", tagline: "Dhandho value investor", category: "value" },
+  { cik: "2045724", slug: "situational-awareness", name: "Situational Awareness LP", manager: "Leopold Aschenbrenner", tagline: "AGI-thesis concentrated bet", category: "contrarian", popularity: 2 },
 ];
 
 // Themed / coming-soon entries that aren't 13F filers (yet).
 export const THEMED_INVESTORS: Investor[] = [
-  {
-    cik: null,
-    slug: "situational-awareness",
-    name: "Situational Awareness LP",
-    manager: "Leopold Aschenbrenner",
-    tagline: "AGI-thesis concentrated bet",
-    category: "themed",
-    comingSoon: true,
-    description:
-      "Leopold Aschenbrenner's hedge fund built around the thesis from his Situational Awareness essay. The fund launched mid-2024 and will appear here automatically once it files its first 13F with the SEC.",
-  },
   {
     cik: null,
     slug: "inverse-cramer",

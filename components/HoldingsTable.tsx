@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { Holding } from "@/lib/edgar";
-import { formatNumber, formatPercent, formatUsd } from "@/lib/format";
+import { formatCompactShares, formatPercent, formatUsd } from "@/lib/format";
+import { cleanCompanyName } from "@/lib/companyName";
 import { TickerLink } from "./TickerLink";
 
 type SortKey = "value" | "shares" | "name" | "since";
@@ -48,7 +49,9 @@ export function HoldingsTable({
         const rb = priceByCusip[b.cusip]?.sinceReturn ?? -Infinity;
         return rb - ra;
       }
-      return a.nameOfIssuer.localeCompare(b.nameOfIssuer);
+      return cleanCompanyName(a.nameOfIssuer).localeCompare(
+        cleanCompanyName(b.nameOfIssuer)
+      );
     });
     return list;
   }, [query, sortKey, holdings, priceByCusip]);
@@ -117,26 +120,29 @@ export function HoldingsTable({
                 <tr key={`${h.cusip}-${i}`} className="hover:bg-ink-50/60">
                   <td className="px-4 py-3 text-ink-400">{i + 1}</td>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-ink-900">
-                      {h.nameOfIssuer}
-                      {price?.ticker && (
+                    <div className="font-semibold text-ink-900">
+                      {price?.ticker ? (
                         <TickerLink
                           ticker={price.ticker}
-                          className="ml-2 text-xs font-semibold text-ink-500"
+                          className="text-ink-900"
                         />
+                      ) : (
+                        cleanCompanyName(h.nameOfIssuer)
                       )}
                       {h.putCall && (
-                        <span className="ml-2 text-xs uppercase rounded bg-ink-100 px-1.5 py-0.5 text-ink-600">
+                        <span className="ml-2 text-xs uppercase rounded bg-loss/10 px-1.5 py-0.5 text-loss">
                           {h.putCall}
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-ink-500">
-                      {h.titleOfClass} · CUSIP {h.cusip}
-                    </div>
+                    {price?.ticker && (
+                      <div className="text-xs text-ink-500">
+                        {cleanCompanyName(h.nameOfIssuer, price.ticker)}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">
-                    {formatNumber(h.shares)}
+                    {formatCompactShares(h.shares)}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums font-medium">
                     {formatUsd(h.value, { compact: true })}

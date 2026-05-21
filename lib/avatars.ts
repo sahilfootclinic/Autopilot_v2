@@ -43,6 +43,14 @@ export function botAvatar(seed: string): string {
   return uri;
 }
 
+// Per-photo crop tweaks (zoom / focus) for uploaded images that need it.
+export const AVATAR_TWEAKS: Record<
+  string,
+  { zoom?: number; focus?: string }
+> = {
+  "nancy-pelosi": { zoom: 1.5, focus: "50% 22%" },
+};
+
 /** Real photo from public/avatars/ if present, else a cartoon face. */
 export function photoOrPerson(slug: string, seed: string): string {
   return PHOTOS[slug] ?? personAvatar(seed);

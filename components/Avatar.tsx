@@ -11,6 +11,10 @@ export type AvatarProps = {
   size?: number;
   /** "circle" for people, "squircle" for portfolio thumbnails */
   shape?: "circle" | "squircle";
+  /** Scale the photo up to crop in tighter */
+  imageZoom?: number;
+  /** object-position for the photo, e.g. "50% 22%" */
+  imageFocus?: string;
   className?: string;
 };
 
@@ -51,21 +55,30 @@ export function Avatar({
   badgeColor = "#0A0A0A",
   size = 48,
   shape = "circle",
+  imageZoom,
+  imageFocus,
   className = "",
 }: AvatarProps) {
   const radius = shape === "squircle" ? Math.round(size * 0.28) : size / 2;
 
   if (image) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={image}
-        alt={label}
-        width={size}
-        height={size}
-        className={`object-cover bg-ink-100 shrink-0 ${className}`}
+      <div
+        className={`overflow-hidden bg-ink-100 shrink-0 ${className}`}
         style={{ width: size, height: size, borderRadius: radius }}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={image}
+          alt={label}
+          className="w-full h-full object-cover"
+          style={{
+            objectPosition: imageFocus ?? "center",
+            transform:
+              imageZoom && imageZoom !== 1 ? `scale(${imageZoom})` : undefined,
+          }}
+        />
+      </div>
     );
   }
   const [from, to] = gradientFor(seed || label);

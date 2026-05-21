@@ -60,19 +60,23 @@ function ProfileRow({ entry }: { entry: CatalogEntry }) {
     >
       <Avatar
         seed={entry.slug}
-        label={entry.manager}
+        label={entry.primary}
         image={entry.image}
+        imageZoom={entry.imageZoom}
+        imageFocus={entry.imageFocus}
         size={56}
         shape="circle"
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="font-semibold text-ink-900 truncate text-[17px]">
-            {entry.name}
+            {entry.primary}
           </span>
           <VerifiedCheck />
         </div>
-        <div className="text-sm text-ink-500 truncate">{entry.badgeLabel}</div>
+        <div className="text-sm text-ink-500 truncate">
+          {entry.secondary} · {entry.badgeLabel}
+        </div>
       </div>
       <svg
         width="18"

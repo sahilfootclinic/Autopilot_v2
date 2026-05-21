@@ -5,7 +5,14 @@ import { getAllPoliticianSummaries } from "@/lib/politicians";
 import { getPriceSeries } from "@/lib/prices";
 import { Avatar } from "@/components/Avatar";
 import { photoOrPerson } from "@/lib/avatars";
-import { formatDate, formatNumber, formatUsd, formatPercent } from "@/lib/format";
+import { getCompanyInfo } from "@/data/companies";
+import { cleanCompanyName } from "@/lib/companyName";
+import {
+  formatCompactShares,
+  formatDate,
+  formatUsd,
+  formatPercent,
+} from "@/lib/format";
 
 export const revalidate = 21600; // 6h
 
@@ -49,11 +56,16 @@ export default async function StockPage({
     }
   }
 
+  const info = getCompanyInfo(ticker);
   const companyName =
-    whales[0]?.nameOfIssuer ??
-    aiHolders[0]?.holding.name ??
-    politicianTrades[0]?.trades[0]?.assetDescription ??
-    ticker;
+    info?.name ??
+    cleanCompanyName(
+      whales[0]?.nameOfIssuer ??
+        aiHolders[0]?.holding.name ??
+        politicianTrades[0]?.trades[0]?.assetDescription ??
+        ticker,
+      ticker
+    );
 
   const dayChange =
     price && price.previousClose
@@ -82,8 +94,11 @@ export default async function StockPage({
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
             {ticker}
           </h1>
-          <p className="mt-1 text-ink-500 text-lg capitalize">
-            {companyName.toLowerCase()}
+          <p className="mt-1 text-ink-500 text-lg">
+            {companyName}
+            {info && (
+              <span className="text-ink-400"> · {info.sector}</span>
+            )}
           </p>
         </div>
         {price && (
@@ -105,6 +120,15 @@ export default async function StockPage({
           </div>
         )}
       </header>
+
+      {info && (
+        <section className="mt-8 rounded-2xl border border-ink-100 bg-ink-50 p-6">
+          <h2 className="text-lg font-semibold">About {info.name}</h2>
+          <p className="mt-2 text-ink-700 leading-relaxed text-[15px]">
+            {info.description}
+          </p>
+        </section>
+      )}
 
       {nothingFound && (
         <div className="mt-10 rounded-2xl border border-ink-100 bg-ink-50 p-8 text-center text-ink-500">
@@ -142,7 +166,7 @@ export default async function StockPage({
                     {w.fundName}
                   </div>
                   <div className="text-sm text-ink-500 truncate">
-                    {w.manager} · {formatNumber(w.shares)} shares ·{" "}
+                    {w.manager} · {formatCompactShares(w.shares)} ·{" "}
                     {formatDate(w.reportDate)}
                   </div>
                 </div>
