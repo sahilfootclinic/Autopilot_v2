@@ -122,11 +122,18 @@ export default async function StockPage({
       </header>
 
       {info && (
-        <section className="mt-8 rounded-2xl border border-ink-100 bg-ink-50 p-6">
+        <section className="mt-8 rounded-2xl border border-ink-100 bg-white shadow-card p-6">
           <h2 className="text-lg font-semibold">About {info.name}</h2>
           <p className="mt-2 text-ink-700 leading-relaxed text-[15px]">
             {info.description}
           </p>
+          <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Fact label="CEO" value={info.ceo} />
+            <Fact label="Sector" value={info.sector} />
+            <Fact label="Founded" value={info.founded} />
+            <Fact label="Headquarters" value={info.hq} />
+          </div>
+          <p className="mt-3 text-sm text-ink-500">{info.ceoNote}</p>
         </section>
       )}
 
@@ -268,6 +275,19 @@ export default async function StockPage({
         Politician trades from congressional STOCK Act disclosures. Prices via
         Yahoo Finance. Not investment advice.
       </p>
+    </div>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-ink-100 bg-ink-50 px-3 py-2.5">
+      <div className="text-xs uppercase tracking-wide text-ink-400">
+        {label}
+      </div>
+      <div className="mt-0.5 font-semibold text-ink-900 text-[15px]">
+        {value}
+      </div>
     </div>
   );
 }
