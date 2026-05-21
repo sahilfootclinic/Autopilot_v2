@@ -31,8 +31,8 @@ body {
 
 .hero-gradient {
   background:
-    radial-gradient(80% 60% at 50% 0%, rgba(15, 157, 88, 0.08) 0%, rgba(15, 157, 88, 0) 60%),
-    linear-gradient(180deg, #fafafa 0%, #ffffff 60%);
+    radial-gradient(125% 95% at 50% -12%, rgba(15, 157, 88, 0.34) 0%, rgba(15, 157, 88, 0.14) 38%, rgba(15, 157, 88, 0.03) 62%, rgba(15, 157, 88, 0) 78%),
+    linear-gradient(180deg, #f3faf5 0%, #ffffff 72%);
 }
 
 .ticker-dot {
