@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Holding } from "@/lib/edgar";
 import { formatCompactShares, formatPercent, formatUsd } from "@/lib/format";
 import { cleanCompanyName } from "@/lib/companyName";
@@ -137,7 +138,12 @@ export function HoldingsTable({
                     </div>
                     {price?.ticker && (
                       <div className="text-xs text-ink-500">
-                        {cleanCompanyName(h.nameOfIssuer, price.ticker)}
+                        <Link
+                          href={`/stock/${encodeURIComponent(price.ticker.toUpperCase())}`}
+                          className="hover:text-accent-dark hover:underline"
+                        >
+                          {cleanCompanyName(h.nameOfIssuer, price.ticker)}
+                        </Link>
                       </div>
                     )}
                   </td>

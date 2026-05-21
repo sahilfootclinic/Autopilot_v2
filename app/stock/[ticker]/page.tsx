@@ -122,18 +122,35 @@ export default async function StockPage({
       </header>
 
       {info && (
-        <section className="mt-8 rounded-2xl border border-ink-100 bg-white shadow-card p-6">
-          <h2 className="text-lg font-semibold">About {info.name}</h2>
-          <p className="mt-2 text-ink-700 leading-relaxed text-[15px]">
-            {info.description}
-          </p>
-          <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Fact label="CEO" value={info.ceo} />
-            <Fact label="Sector" value={info.sector} />
-            <Fact label="Founded" value={info.founded} />
-            <Fact label="Headquarters" value={info.hq} />
+        <section className="mt-8 space-y-4">
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-6">
+            <h2 className="text-lg font-semibold">About {info.name}</h2>
+            <p className="mt-2 text-ink-700 leading-relaxed text-[15px]">
+              {info.description}
+            </p>
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <Fact label="Sector" value={info.sector} />
+              <Fact label="Founded" value={info.founded} />
+              <Fact label="Headquarters" value={info.hq} />
+            </div>
           </div>
-          <p className="mt-3 text-sm text-ink-500">{info.ceoNote}</p>
+
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-ink-100 flex items-center justify-center text-ink-500 text-lg font-semibold shrink-0 select-none">
+                {info.ceo.split(" ").map((n) => n[0]).join("")}
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-ink-400 mb-0.5">
+                  Chief Executive Officer
+                </div>
+                <div className="text-lg font-semibold text-ink-900">
+                  {info.ceo}
+                </div>
+                <p className="mt-1 text-ink-500 text-[15px]">{info.ceoNote}</p>
+              </div>
+            </div>
+          </div>
         </section>
       )}
 
