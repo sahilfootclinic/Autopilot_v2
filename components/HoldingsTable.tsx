@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Holding } from "@/lib/edgar";
 import { formatNumber, formatPercent, formatUsd } from "@/lib/format";
+import { TickerLink } from "./TickerLink";
 
 type SortKey = "value" | "shares" | "name" | "since";
 
@@ -119,9 +120,10 @@ export function HoldingsTable({
                     <div className="font-medium text-ink-900">
                       {h.nameOfIssuer}
                       {price?.ticker && (
-                        <span className="ml-2 text-xs font-semibold text-ink-400">
-                          {price.ticker}
-                        </span>
+                        <TickerLink
+                          ticker={price.ticker}
+                          className="ml-2 text-xs font-semibold text-ink-500"
+                        />
                       )}
                       {h.putCall && (
                         <span className="ml-2 text-xs uppercase rounded bg-ink-100 px-1.5 py-0.5 text-ink-600">

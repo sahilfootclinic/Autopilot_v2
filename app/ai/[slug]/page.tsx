@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAiPortfolio, AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
+import { TickerLink } from "@/components/TickerLink";
 import { getBio } from "@/data/bios";
 import { photoOrBot } from "@/lib/avatars";
 import { getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
@@ -141,9 +142,10 @@ export default async function AiPortfolioPage({
                 {rows.map((r) => (
                   <tr key={r.ticker} className="hover:bg-ink-50/60 align-top">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-ink-900">
-                        {r.ticker}
-                      </div>
+                      <TickerLink
+                        ticker={r.ticker}
+                        className="font-semibold text-ink-900"
+                      />
                       <div className="text-xs text-ink-500">{r.name}</div>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums font-medium">
