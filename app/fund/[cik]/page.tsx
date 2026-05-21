@@ -19,6 +19,7 @@ import { HoldingsTable, type HoldingPrice } from "@/components/HoldingsTable";
 import { ChangesPanel } from "@/components/ChangesPanel";
 import { AboutCard } from "@/components/AboutCard";
 import { Avatar } from "@/components/Avatar";
+import { WatchlistButton } from "@/components/WatchlistButton";
 import { getBio } from "@/data/bios";
 import { photoOrPerson } from "@/lib/avatars";
 import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
@@ -104,14 +105,23 @@ export default async function FundPage({
             )}
           </div>
         </div>
-        <a
-          href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=13F&dateb=&owner=include&count=40`}
-          target="_blank"
-          rel="noreferrer"
-          className="self-start md:self-auto inline-flex items-center gap-2 rounded-full border border-ink-200 px-4 py-2 text-sm text-ink-700 hover:bg-ink-50 transition"
-        >
-          View on SEC EDGAR ↗
-        </a>
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          {investor && (
+            <WatchlistButton
+              slug={investor.slug}
+              size={22}
+              className="rounded-full border border-ink-200 p-2 hover:bg-ink-50"
+            />
+          )}
+          <a
+            href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=13F&dateb=&owner=include&count=40`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-ink-200 px-4 py-2 text-sm text-ink-700 hover:bg-ink-50 transition"
+          >
+            View on SEC EDGAR ↗
+          </a>
+        </div>
       </header>
 
       {/* Stat grid */}

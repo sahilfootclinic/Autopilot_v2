@@ -13,6 +13,7 @@ import { PopularRow } from "@/components/PerformerRow";
 import { SearchBar } from "@/components/SearchBar";
 import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
+import { WatchlistSection } from "@/components/WatchlistSection";
 import { getPerformanceForAll } from "@/lib/performance";
 
 export const revalidate = 21600;
@@ -39,17 +40,20 @@ export default async function HomePage() {
   });
 
   const popular = popularInvestors().slice(0, 6);
+  const allEntries = entriesAll();
 
   return (
     <>
       <Hero />
+
+      <WatchlistSection all={allEntries} />
 
       <BrowseTabs
         hedge={entriesHedgeFunds()}
         ai={entriesAI()}
         politicians={entriesPoliticians()}
         twitter={entriesTwitterLegends()}
-        all={entriesAll()}
+        all={allEntries}
       />
 
       <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -90,7 +94,7 @@ function Hero() {
       <div className="mx-auto max-w-page px-6 pt-20 pb-14 md:pt-28 md:pb-20 text-center">
         <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
           Follow <span className="gradient-text">The Money</span>
-          <span className="text-[#F7931A]">₿</span>
+          <span className="btc-dot">₿</span>
         </h1>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />

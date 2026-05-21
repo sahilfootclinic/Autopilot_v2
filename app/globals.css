@@ -43,3 +43,26 @@ body {
   background: #0f9d58;
   box-shadow: 0 0 0 4px rgba(15, 157, 88, 0.18);
 }
+
+/* Bitcoin glyph used as the full stop after "Follow The Money" */
+.btc-dot {
+  display: inline-block;
+  font-size: 0.32em;
+  vertical-align: 0.12em;
+  margin-left: 0.04em;
+  transform: rotate(16deg);
+  background: linear-gradient(
+    150deg,
+    #fff7cc 0%,
+    #f4cf63 18%,
+    #c79520 36%,
+    #fff3b0 50%,
+    #b07d12 66%,
+    #e7c252 82%,
+    #8a6210 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(110, 75, 0, 0.45));
+}

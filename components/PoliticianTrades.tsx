@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { PoliticianTrade } from "@/lib/politicians";
 import { formatDate } from "@/lib/format";
+import { TickerLink } from "./TickerLink";
 
 type Filter = "all" | "purchase" | "sale";
 
@@ -81,9 +82,10 @@ export function PoliticianTrades({ trades }: { trades: PoliticianTrade[] }) {
                   {formatDate(t.transactionDate)}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="font-semibold text-ink-900">
-                    {t.ticker || "—"}
-                  </div>
+                  <TickerLink
+                    ticker={t.ticker}
+                    className="font-semibold text-ink-900"
+                  />
                   <div className="text-xs text-ink-500 max-w-xs truncate">
                     {t.assetDescription}
                   </div>
