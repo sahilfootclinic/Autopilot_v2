@@ -3,6 +3,7 @@
 // entry's slug (see public/avatars/README.md), then commit and push.
 export const PHOTOS: Record<string, string> = {
   "berkshire": "/avatars/berkshire.webp",
+  "bitcoin": "/avatars/bitcoin.jpg",
   "inverse-cramer": "/avatars/inverse-cramer.jpg",
   "nancy-pelosi": "/avatars/nancy-pelosi.jpg",
   "pershing-square": "/avatars/pershing-square.webp",
