@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Investor } from "@/lib/investors";
+import type { CatalogEntry } from "@/lib/catalog";
 import { PerformerRow } from "./PerformerRow";
 import type { PerformanceWindow } from "@/lib/performance";
 
@@ -14,14 +14,14 @@ const TABS: { key: PerformanceWindow; label: string }[] = [
 
 export type PerfRow = {
   cik: string;
-  values: Partial<Record<PerformanceWindow, number>>; // % change
+  values: Partial<Record<PerformanceWindow, number>>;
 };
 
 export function TopPerformers({
-  investors,
+  entriesByCik,
   perf,
 }: {
-  investors: Investor[];
+  entriesByCik: Record<string, CatalogEntry>;
   perf: PerfRow[];
 }) {
   const [tab, setTab] = useState<PerformanceWindow>("1Y");
@@ -32,34 +32,15 @@ export function TopPerformers({
       .filter((r): r is { cik: string; val: number } => typeof r.val === "number");
     withVal.sort((a, b) => b.val - a.val);
     return withVal
-      .map((r) => ({
-        investor: investors.find((i) => i.cik === r.cik),
-        val: r.val,
-      }))
-      .filter((r): r is { investor: Investor; val: number } => !!r.investor)
+      .map((r) => ({ entry: entriesByCik[r.cik], val: r.val }))
+      .filter((r): r is { entry: CatalogEntry; val: number } => !!r.entry)
       .slice(0, 5);
-  }, [tab, perf, investors]);
+  }, [tab, perf, entriesByCik]);
 
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          Top Performers
-          <span
-            className="text-ink-400"
-            title="Ranked by reported 13F portfolio value change over the period. Reflects price moves plus inflows/outflows, not just total return."
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-              <path
-                d="M12 8.5v.01M11 11h1v5"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Top Performers</h2>
         <div className="flex gap-1 rounded-full bg-ink-100 p-1 text-sm">
           {TABS.map((t) => {
             const active = tab === t.key;
@@ -86,10 +67,10 @@ export function TopPerformers({
             Not enough 13F history yet for this window.
           </div>
         ) : (
-          ranked.map(({ investor, val }) => (
+          ranked.map(({ entry, val }) => (
             <PerformerRow
-              key={investor.cik ?? investor.slug}
-              investor={investor}
+              key={entry.slug}
+              entry={entry}
               badge={`${val >= 0 ? "+" : ""}${val.toFixed(1)}%`}
               badgeTone={val >= 0 ? "pos" : "neg"}
             />
@@ -97,7 +78,8 @@ export function TopPerformers({
         )}
       </div>
       <p className="text-xs text-ink-400 mt-3">
-        Based on reported 13F portfolio value Δ. Includes inflows/outflows, not just price return.
+        Ranked by reported 13F portfolio value Δ over the period — includes
+        inflows/outflows, not just price return.
       </p>
     </section>
   );

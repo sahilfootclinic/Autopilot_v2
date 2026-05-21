@@ -5,6 +5,7 @@ import {
   getFilerProfile,
   getFilingHoldings,
   getQoQDiff,
+  type Holding,
 } from "@/lib/edgar";
 import { getInvestor } from "@/lib/investors";
 import {
@@ -14,8 +15,9 @@ import {
   formatUsd,
   quarterLabel,
 } from "@/lib/format";
-import { HoldingsTable } from "@/components/HoldingsTable";
+import { HoldingsTable, type HoldingPrice } from "@/components/HoldingsTable";
 import { ChangesPanel } from "@/components/ChangesPanel";
+import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 
 export const revalidate = 21600;
 
@@ -61,6 +63,12 @@ export default async function FundPage({
   const top10Pct = holdings && holdings.totalValueUsd
     ? (top10Value / holdings.totalValueUsd) * 100
     : 0;
+
+  // Live prices for the largest holdings, plus the move since the filing date.
+  const priceByCusip = await resolvePrices(
+    top.slice(0, 40),
+    selected.reportDate
+  ).catch(() => ({}) as Record<string, HoldingPrice>);
 
   return (
     <div className="mx-auto max-w-page px-6 pt-10 pb-20">
@@ -167,6 +175,7 @@ export default async function FundPage({
           <HoldingsTable
             holdings={top}
             totalValueUsd={holdings.totalValueUsd}
+            priceByCusip={priceByCusip}
           />
         ) : (
           <div className="rounded-2xl border border-ink-100 bg-ink-50 p-8 text-ink-500 text-center">
@@ -205,6 +214,41 @@ function Stat({
       {sub && <div className="mt-1 text-xs text-ink-500">{sub}</div>}
     </div>
   );
+}
+
+async function resolvePrices(
+  holdings: Holding[],
+  reportDate: string
+): Promise<Record<string, HoldingPrice>> {
+  const out: Record<string, HoldingPrice> = {};
+  // Skip option rows — pricing the underlying would be misleading.
+  const equities = holdings.filter((h) => !h.putCall && h.cusip);
+  if (equities.length === 0) return out;
+
+  const cusipTickers = await cusipsToTickers(equities.map((h) => h.cusip));
+  if (cusipTickers.size === 0) return out;
+
+  const reportUnix = isoToUnix(reportDate);
+  const series = await getPriceSeriesBatch(
+    Array.from(new Set(cusipTickers.values())),
+    reportUnix
+  );
+
+  for (const h of equities) {
+    const ticker = cusipTickers.get(h.cusip.trim().toUpperCase());
+    if (!ticker) continue;
+    const s = series.get(ticker.replace(/\./g, "-").toUpperCase());
+    if (!s) continue;
+    out[h.cusip] = {
+      ticker,
+      price: s.current,
+      sinceReturn:
+        s.atSince && s.atSince > 0
+          ? (s.current / s.atSince - 1) * 100
+          : null,
+    };
+  }
+  return out;
 }
 
 function NoFilings({ name, cik }: { name: string; cik: string }) {

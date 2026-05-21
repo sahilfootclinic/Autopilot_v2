@@ -27,12 +27,30 @@ npm run dev
 
 Open http://localhost:3000.
 
-> Note: SEC EDGAR requires a `User-Agent` header with contact info. Set
-> `SEC_USER_AGENT` in `.env.local` (optional — there's a default).
+All environment variables are optional — the app runs with none set:
 
 ```
+# Recommended by the SEC for the EDGAR User-Agent header
 SEC_USER_AGENT="Your Name your-email@example.com"
+
+# Optional: raises the OpenFIGI CUSIP→ticker rate limit (free key)
+OPENFIGI_API_KEY="..."
+
+# Optional: override the congressional trades dataset URL
+HOUSE_TRADES_URL="https://house-stock-watcher-data.s3-us-west-2.amazonaws.com/data/all_transactions.json"
 ```
+
+## Data sources
+
+- **13F holdings** — SEC EDGAR (official).
+- **Live prices** — Yahoo Finance `v8/chart` endpoint; CUSIP→ticker mapping
+  via the free OpenFIGI API.
+- **AI Portfolios** (GPT / Grok) — reference allocations following the
+  methodology in A. Lopez-Lira's *GPT Portfolio White Paper V2* (15 assets,
+  monthly rebalance, LLM-scored S&P 500). Edit `data/aiPortfolios.ts` and
+  push to update after a rebalance.
+- **Politicians** — community `house-stock-watcher` dataset of congressional
+  STOCK Act disclosures (third-party, not official SEC data).
 
 ## Deploying
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { findBySlug } from "@/lib/investors";
+import { findThemedBySlug } from "@/lib/investors";
 import { Avatar } from "@/components/Avatar";
 
 export default async function ThemedPortfolioPage({
@@ -9,8 +9,8 @@ export default async function ThemedPortfolioPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const investor = findBySlug(slug);
-  if (!investor || investor.source !== "synthetic") notFound();
+  const investor = findThemedBySlug(slug);
+  if (!investor) notFound();
 
   return (
     <div className="mx-auto max-w-2xl px-6 pt-12 pb-24">
@@ -23,7 +23,7 @@ export default async function ThemedPortfolioPage({
       </div>
 
       <div className="flex items-center gap-5">
-        <Avatar investor={investor} size={80} />
+        <Avatar seed={investor.slug} label={investor.manager} size={80} />
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
             {investor.name}
