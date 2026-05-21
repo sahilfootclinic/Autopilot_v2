@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Whale Watcher — Follow The Money",
+  title: "Sentinel — Follow The Money",
   description:
     "Track what legendary hedge funds, AI portfolios, and members of Congress are buying and selling.",
 };
@@ -38,21 +38,15 @@ function SiteHeader() {
         <Link href="/" className="flex items-center gap-2">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
-              d="M2 13c3 0 3-3 6-3s3 3 6 3 3-3 6-3"
+              d="M12 2.5l7.5 3.2v5c0 5.2-3.2 9-7.5 10.8C7.7 19.7 4.5 15.9 4.5 10.7v-5L12 2.5z"
               stroke="#0F9D58"
               strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M20 7c-1.5 0-3 1-3 3 0 2 1.5 3 3 3 .8 0 1.5-.3 2-.8-.4 2.2-2 3.8-4 3.8"
-              stroke="#0A0A0A"
-              strokeWidth="2"
-              strokeLinecap="round"
               strokeLinejoin="round"
             />
+            <circle cx="12" cy="11" r="2.4" fill="#0F9D58" />
           </svg>
           <span className="font-semibold tracking-tight text-lg">
-            Whale Watcher
+            Sentinel
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm text-ink-600">

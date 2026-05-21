@@ -91,10 +91,12 @@ export default async function HomePage() {
 function Hero() {
   return (
     <section className="hero-gradient">
-      <div className="mx-auto max-w-page px-6 pt-20 pb-14 md:pt-28 md:pb-20 text-center">
+      <div className="mx-auto max-w-page px-6 pt-20 pb-28 md:pt-28 md:pb-36 text-center">
         <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
           Follow <span className="gradient-text">The Money</span>
-          <span className="btc-dot">₿</span>
+          <span className="btc-coin" aria-hidden>
+            <span>₿</span>
+          </span>
         </h1>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />
