@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "13F Tracker — Follow the world's top investors",
+  title: "Whale Watcher — Follow The Money",
   description:
-    "Track the quarterly stock holdings of legendary investors. Real-time 13F filings from the SEC.",
+    "Track what legendary hedge funds, AI portfolios, and members of Congress are buying and selling.",
 };
 
 export default function RootLayout({
@@ -36,9 +36,23 @@ function SiteHeader() {
     <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-ink-100">
       <div className="mx-auto max-w-page px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="ticker-dot" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path
+              d="M2 13c3 0 3-3 6-3s3 3 6 3 3-3 6-3"
+              stroke="#0F9D58"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M20 7c-1.5 0-3 1-3 3 0 2 1.5 3 3 3 .8 0 1.5-.3 2-.8-.4 2.2-2 3.8-4 3.8"
+              stroke="#0A0A0A"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <span className="font-semibold tracking-tight text-lg">
-            13F<span className="text-accent">.</span>tracker
+            Whale Watcher
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm text-ink-600">

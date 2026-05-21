@@ -4,6 +4,7 @@ import { findThemedBySlug } from "@/lib/investors";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
 import { getBio } from "@/data/bios";
+import { personAvatar } from "@/lib/avatars";
 
 export default async function ThemedPortfolioPage({
   params,
@@ -25,7 +26,12 @@ export default async function ThemedPortfolioPage({
       </div>
 
       <div className="flex items-center gap-5">
-        <Avatar seed={investor.slug} label={investor.manager} size={80} />
+        <Avatar
+          seed={investor.slug}
+          label={investor.manager}
+          image={personAvatar(investor.manager)}
+          size={80}
+        />
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
             {investor.name}
