@@ -4,18 +4,28 @@ import { useMemo, useState } from "react";
 import type { Holding } from "@/lib/edgar";
 import { formatNumber, formatPercent, formatUsd } from "@/lib/format";
 
-type SortKey = "value" | "shares" | "name";
+type SortKey = "value" | "shares" | "name" | "since";
+
+export type HoldingPrice = {
+  ticker: string;
+  price: number;
+  sinceReturn: number | null; // % since the filing's report date
+};
 
 export function HoldingsTable({
   holdings,
   totalValueUsd,
+  priceByCusip = {},
 }: {
   holdings: Holding[];
   totalValueUsd: number;
+  priceByCusip?: Record<string, HoldingPrice>;
 }) {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("value");
   const [showAll, setShowAll] = useState(false);
+
+  const hasPrices = Object.keys(priceByCusip).length > 0;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -25,16 +35,22 @@ export function HoldingsTable({
         (h) =>
           h.nameOfIssuer.toLowerCase().includes(q) ||
           h.cusip.toLowerCase().includes(q) ||
-          h.titleOfClass.toLowerCase().includes(q)
+          h.titleOfClass.toLowerCase().includes(q) ||
+          (priceByCusip[h.cusip]?.ticker ?? "").toLowerCase().includes(q)
       );
     }
     list = [...list].sort((a, b) => {
       if (sortKey === "value") return b.value - a.value;
       if (sortKey === "shares") return b.shares - a.shares;
+      if (sortKey === "since") {
+        const ra = priceByCusip[a.cusip]?.sinceReturn ?? -Infinity;
+        const rb = priceByCusip[b.cusip]?.sinceReturn ?? -Infinity;
+        return rb - ra;
+      }
       return a.nameOfIssuer.localeCompare(b.nameOfIssuer);
     });
     return list;
-  }, [query, sortKey, holdings]);
+  }, [query, sortKey, holdings, priceByCusip]);
 
   const visible = showAll ? filtered : filtered.slice(0, 25);
 
@@ -67,6 +83,7 @@ export function HoldingsTable({
           >
             <option value="value">Position value</option>
             <option value="shares">Share count</option>
+            {hasPrices && <option value="since">Return since filing</option>}
             <option value="name">Company name</option>
           </select>
         </div>
@@ -80,18 +97,32 @@ export function HoldingsTable({
               <th className="text-left font-medium px-4 py-3">Company</th>
               <th className="text-right font-medium px-4 py-3">Shares</th>
               <th className="text-right font-medium px-4 py-3">Value</th>
+              {hasPrices && (
+                <>
+                  <th className="text-right font-medium px-4 py-3">Price</th>
+                  <th className="text-right font-medium px-4 py-3">
+                    Since filing
+                  </th>
+                </>
+              )}
               <th className="text-right font-medium px-4 py-3">% Portfolio</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ink-100">
             {visible.map((h, i) => {
               const pct = totalValueUsd ? (h.value / totalValueUsd) * 100 : 0;
+              const price = priceByCusip[h.cusip];
               return (
                 <tr key={`${h.cusip}-${i}`} className="hover:bg-ink-50/60">
                   <td className="px-4 py-3 text-ink-400">{i + 1}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-ink-900">
                       {h.nameOfIssuer}
+                      {price?.ticker && (
+                        <span className="ml-2 text-xs font-semibold text-ink-400">
+                          {price.ticker}
+                        </span>
+                      )}
                       {h.putCall && (
                         <span className="ml-2 text-xs uppercase rounded bg-ink-100 px-1.5 py-0.5 text-ink-600">
                           {h.putCall}
@@ -108,6 +139,27 @@ export function HoldingsTable({
                   <td className="px-4 py-3 text-right tabular-nums font-medium">
                     {formatUsd(h.value, { compact: true })}
                   </td>
+                  {hasPrices && (
+                    <>
+                      <td className="px-4 py-3 text-right tabular-nums text-ink-700">
+                        {price ? `$${price.price.toFixed(2)}` : "—"}
+                      </td>
+                      <td
+                        className={
+                          "px-4 py-3 text-right tabular-nums font-medium " +
+                          (price?.sinceReturn == null
+                            ? "text-ink-400"
+                            : price.sinceReturn >= 0
+                            ? "text-accent-dark"
+                            : "text-loss")
+                        }
+                      >
+                        {price?.sinceReturn == null
+                          ? "—"
+                          : `${price.sinceReturn >= 0 ? "+" : ""}${price.sinceReturn.toFixed(1)}%`}
+                      </td>
+                    </>
+                  )}
                   <td className="px-4 py-3 text-right tabular-nums">
                     <div className="flex items-center justify-end gap-2">
                       <div className="hidden sm:block h-1.5 w-16 bg-ink-100 rounded-full overflow-hidden">
@@ -128,7 +180,10 @@ export function HoldingsTable({
             })}
             {visible.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-ink-500">
+                <td
+                  colSpan={hasPrices ? 7 : 5}
+                  className="px-4 py-10 text-center text-ink-500"
+                >
                   No holdings match your filter.
                 </td>
               </tr>

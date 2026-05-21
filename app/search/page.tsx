@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { searchFilers } from "@/lib/edgar";
 import { SearchBar } from "@/components/SearchBar";
-import { FEATURED_INVESTORS } from "@/lib/investors";
+import { INVESTORS_13F } from "@/lib/investors";
 
 export const revalidate = 3600;
 
@@ -56,7 +56,7 @@ export default async function SearchPage({
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Or browse featured</h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {FEATURED_INVESTORS.map((inv) => (
+            {INVESTORS_13F.map((inv) => (
               <li key={inv.cik}>
                 <Link
                   href={`/fund/${inv.cik}`}

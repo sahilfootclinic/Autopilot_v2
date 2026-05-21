@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { popularInvestors, tradableInvestors } from "@/lib/investors";
 import {
-  FEATURED_INVESTORS,
-  popularInvestors,
-  tradableInvestors,
-} from "@/lib/investors";
-import { FundCard } from "@/components/FundCard";
+  entries13F,
+  entriesAI,
+  entriesPoliticians,
+  investorEntry,
+  type CatalogEntry,
+} from "@/lib/catalog";
 import { PopularRow } from "@/components/PerformerRow";
 import { SearchBar } from "@/components/SearchBar";
 import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
+import { BrowseTabs } from "@/components/BrowseTabs";
 import { getPerformanceForAll } from "@/lib/performance";
 
 export const revalidate = 21600;
@@ -15,9 +18,10 @@ export const revalidate = 21600;
 export default async function HomePage() {
   const tradable = tradableInvestors();
   const ciks = tradable.map((i) => i.cik!);
-  const perfMap = await getPerformanceForAll(ciks).catch(
-    () => new Map()
-  );
+  const perfMap = await getPerformanceForAll(ciks).catch(() => new Map());
+
+  const entriesByCik: Record<string, CatalogEntry> = {};
+  for (const inv of tradable) entriesByCik[inv.cik!] = investorEntry(inv);
 
   const perfRows: PerfRow[] = tradable.map((inv) => {
     const p = perfMap.get(inv.cik!);
@@ -37,8 +41,42 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <PerformanceSection investors={tradable} perfRows={perfRows} popular={popular} perfMap={perfMap} />
-      <Featured />
+      <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <TopPerformers entriesByCik={entriesByCik} perf={perfRows} />
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold tracking-tight">Popular</h2>
+            <Link
+              href="/search"
+              className="text-sm text-ink-600 hover:text-ink-900"
+            >
+              Browse all →
+            </Link>
+          </div>
+          <div className="bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
+            {popular.map((inv) => {
+              const p = inv.cik ? perfMap.get(inv.cik) : undefined;
+              return (
+                <PopularRow
+                  key={inv.slug}
+                  entry={investorEntry(inv)}
+                  amount={p?.currentValueUsd}
+                />
+              );
+            })}
+          </div>
+          <p className="text-xs text-ink-400 mt-3">
+            Most-followed funds, ranked by reported 13F portfolio value.
+          </p>
+        </section>
+      </section>
+
+      <BrowseTabs
+        funds={entries13F()}
+        ai={entriesAI()}
+        politicians={entriesPoliticians()}
+      />
+
       <HowItWorks />
     </>
   );
@@ -50,7 +88,7 @@ function Hero() {
       <div className="mx-auto max-w-page px-6 pt-20 pb-12 md:pt-28 md:pb-16 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-3 py-1 text-xs font-medium text-ink-600 mb-6">
           <span className="ticker-dot" />
-          Latest 13F filings, refreshed every quarter
+          13F filings · AI portfolios · congressional trades
         </div>
         <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.05]">
           Follow the world's
@@ -58,8 +96,8 @@ function Hero() {
           <span className="gradient-text">smartest investors.</span>
         </h1>
         <p className="mt-6 text-lg md:text-xl text-ink-500 max-w-2xl mx-auto">
-          See exactly what Buffett, Burry, Ackman and 25+ legendary fund managers
-          are buying and selling. Pulled straight from the SEC.
+          Track what legendary funds, AI-managed portfolios, and members of
+          Congress are buying and selling — pulled straight from the source.
         </p>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />
@@ -69,95 +107,22 @@ function Hero() {
   );
 }
 
-function PerformanceSection({
-  investors,
-  perfRows,
-  popular,
-  perfMap,
-}: {
-  investors: ReturnType<typeof tradableInvestors>;
-  perfRows: PerfRow[];
-  popular: ReturnType<typeof popularInvestors>;
-  perfMap: Awaited<ReturnType<typeof getPerformanceForAll>>;
-}) {
-  return (
-    <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-      <TopPerformers investors={investors} perf={perfRows} />
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold tracking-tight">Popular</h2>
-          <Link
-            href="/search"
-            className="text-sm text-ink-600 hover:text-ink-900"
-          >
-            Browse all →
-          </Link>
-        </div>
-        <div className="bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
-          {popular.map((inv) => {
-            const p = inv.cik ? perfMap.get(inv.cik) : undefined;
-            return (
-              <PopularRow
-                key={inv.cik ?? inv.slug}
-                investor={inv}
-                amount={p?.currentValueUsd}
-                subtitle={inv.comingSoon ? "Coming soon" : undefined}
-              />
-            );
-          })}
-        </div>
-        <p className="text-xs text-ink-400 mt-3">
-          Hand-picked: famous funds, AI portfolios, and synthetic strategies.
-        </p>
-      </section>
-    </section>
-  );
-}
-
-function Featured() {
-  return (
-    <section className="mx-auto max-w-page px-6 py-12">
-      <div className="flex items-end justify-between mb-8">
-        <div>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
-            All featured investors
-          </h2>
-          <p className="text-ink-500 mt-2">
-            Tap any fund to see their latest quarter's holdings.
-          </p>
-        </div>
-        <Link
-          href="/search"
-          className="hidden md:inline-flex text-sm font-medium text-ink-700 hover:text-ink-900"
-        >
-          Search all filers →
-        </Link>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {FEATURED_INVESTORS.map((inv) => (
-          <FundCard key={inv.cik ?? inv.slug} investor={inv} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function HowItWorks() {
   const steps = [
     {
       n: "01",
-      title: "Pick an investor",
-      body: "Browse 25+ hand-picked legends — or search any 13F filer by name.",
+      title: "Pick a portfolio",
+      body: "Browse 13F funds, AI-managed portfolios, or members of Congress.",
     },
     {
       n: "02",
-      title: "See their holdings",
-      body: "Every position, share count, and dollar value from their most recent 13F.",
+      title: "See the holdings",
+      body: "Every position with live prices and the move since it was disclosed.",
     },
     {
       n: "03",
-      title: "Track every quarter",
-      body: "We refresh the data automatically. New filings appear within a day.",
+      title: "Track every update",
+      body: "We refresh automatically — new filings and trades appear within a day.",
     },
   ];
   return (
@@ -166,10 +131,6 @@ function HowItWorks() {
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center">
           How it works
         </h2>
-        <p className="text-ink-500 mt-3 text-center max-w-xl mx-auto">
-          Every quarter, big institutional investors must disclose their U.S.
-          equity holdings to the SEC. We make that data readable.
-        </p>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
           {steps.map((s) => (
             <div
