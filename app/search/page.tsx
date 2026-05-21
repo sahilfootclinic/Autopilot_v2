@@ -17,7 +17,7 @@ export default async function SearchPage({
   return (
     <div className="mx-auto max-w-page px-6 pt-10 pb-20">
       <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-        Search 13F filers
+        Search hedge funds
       </h1>
       <p className="text-ink-500 mt-2">
         Find any institutional investor that files Form 13F with the SEC.
