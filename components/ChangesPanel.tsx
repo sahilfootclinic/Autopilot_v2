@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { PositionChange, QoQDiff } from "@/lib/edgar";
-import { formatNumber, formatUsd, quarterLabel } from "@/lib/format";
+import { formatCompactShares, formatUsd, quarterLabel } from "@/lib/format";
+import { cleanCompanyName } from "@/lib/companyName";
 
 type TabKey = "new" | "increased" | "reduced" | "sold";
 
@@ -104,32 +105,34 @@ function ChangeRow({ c, tab }: { c: PositionChange; tab: TabKey }) {
   let secondary: string;
   if (tab === "new") {
     primary = formatUsd(c.currValue, { compact: true });
-    secondary = `${formatNumber(c.currShares)} shares`;
+    secondary = `${formatCompactShares(c.currShares)} shares`;
   } else if (tab === "sold") {
     primary = `−${formatUsd(c.prevValue, { compact: true })}`;
-    secondary = `${formatNumber(c.prevShares)} shares sold`;
+    secondary = `${formatCompactShares(c.prevShares)} shares sold`;
   } else if (tab === "increased") {
     const pct = Number.isFinite(c.pctChange)
       ? ` (+${(c.pctChange * 100).toFixed(0)}%)`
       : "";
-    primary = `+${formatNumber(c.sharesDelta)} shares${pct}`;
-    secondary = `${formatNumber(c.prevShares)} → ${formatNumber(c.currShares)}`;
+    primary = `+${formatCompactShares(c.sharesDelta)}${pct}`;
+    secondary = `${formatCompactShares(c.prevShares)} → ${formatCompactShares(c.currShares)}`;
   } else {
     const pct = c.prevShares > 0
       ? ` (${((c.sharesDelta / c.prevShares) * 100).toFixed(0)}%)`
       : "";
-    primary = `${formatNumber(c.sharesDelta)} shares${pct}`;
-    secondary = `${formatNumber(c.prevShares)} → ${formatNumber(c.currShares)}`;
+    primary = `${formatCompactShares(c.sharesDelta)}${pct}`;
+    secondary = `${formatCompactShares(c.prevShares)} → ${formatCompactShares(c.currShares)}`;
   }
 
   return (
     <li className="flex items-center justify-between gap-4 px-5 py-3 hover:bg-ink-50/60">
       <div className="min-w-0">
         <div className="font-medium text-ink-900 truncate">
-          {c.nameOfIssuer}
+          {cleanCompanyName(c.nameOfIssuer)}
         </div>
         <div className="text-xs text-ink-500 truncate">
-          {c.titleOfClass} · CUSIP {c.cusip}
+          {tab === "new" || tab === "increased"
+            ? "Shares now held"
+            : "Shares"}
         </div>
       </div>
       <div className={"text-right shrink-0 " + colorClass}>

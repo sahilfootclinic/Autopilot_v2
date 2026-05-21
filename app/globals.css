@@ -31,8 +31,8 @@ body {
 
 .hero-gradient {
   background:
-    radial-gradient(140% 125% at 50% -16%, rgba(9, 104, 54, 0.5) 0%, rgba(11, 120, 64, 0.26) 42%, rgba(13, 140, 78, 0.1) 66%, rgba(15, 157, 88, 0) 90%),
-    linear-gradient(180deg, #e9f5ee 0%, #ffffff 92%);
+    radial-gradient(150% 140% at 50% -12%, rgba(6, 84, 43, 0.62) 0%, rgba(8, 104, 54, 0.34) 48%, rgba(12, 132, 72, 0.13) 74%, rgba(15, 157, 88, 0) 96%),
+    linear-gradient(180deg, #e4f2e9 0%, #ffffff 96%);
 }
 
 .ticker-dot {
@@ -49,11 +49,11 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 0.4em;
-  height: 0.4em;
+  width: 0.34em;
+  height: 0.34em;
   border-radius: 9999px;
-  margin-left: 0.06em;
-  vertical-align: -0.08em;
+  margin-left: 0.05em;
+  vertical-align: -0.06em;
   background: radial-gradient(
     circle at 36% 30%,
     #fff3b0 0%,
@@ -68,7 +68,7 @@ body {
 }
 
 .btc-coin > span {
-  font-size: 0.21em;
+  font-size: 0.17em;
   font-weight: 800;
   line-height: 1;
   color: #6e4c08;

@@ -23,16 +23,6 @@ function Chevron() {
   );
 }
 
-/** Small circular monogram for the manager line. */
-function ManagerTag({ entry }: { entry: CatalogEntry }) {
-  return (
-    <div className="flex items-center gap-1.5 mt-0.5">
-      <Avatar seed={entry.manager} label={entry.manager} size={18} />
-      <span className="text-sm text-ink-500 truncate">{entry.manager}</span>
-    </div>
-  );
-}
-
 export function PerformerRow({
   entry,
   rank,
@@ -56,8 +46,10 @@ export function PerformerRow({
       )}
       <Avatar
         seed={entry.slug}
-        label={entry.manager}
+        label={entry.primary}
         image={entry.image}
+        imageZoom={entry.imageZoom}
+        imageFocus={entry.imageFocus}
         badge={entry.avatarBadge}
         badgeColor={entry.avatarBadgeColor}
         shape="squircle"
@@ -79,9 +71,9 @@ export function PerformerRow({
           </span>
         )}
         <div className="mt-0.5 font-semibold text-ink-900 truncate text-[17px] leading-tight">
-          {entry.name}
+          {entry.primary}
         </div>
-        <ManagerTag entry={entry} />
+        <div className="text-sm text-ink-500 truncate">{entry.secondary}</div>
       </div>
       <Chevron />
     </Link>
@@ -111,8 +103,10 @@ export function PopularRow({
       )}
       <Avatar
         seed={entry.slug}
-        label={entry.manager}
+        label={entry.primary}
         image={entry.image}
+        imageZoom={entry.imageZoom}
+        imageFocus={entry.imageFocus}
         badge={entry.avatarBadge}
         badgeColor={entry.avatarBadgeColor}
         shape="squircle"
@@ -129,9 +123,9 @@ export function PopularRow({
           )}
         </div>
         <div className="mt-0.5 font-semibold text-ink-900 truncate text-[17px] leading-tight">
-          {entry.name}
+          {entry.primary}
         </div>
-        <ManagerTag entry={entry} />
+        <div className="text-sm text-ink-500 truncate">{entry.secondary}</div>
       </div>
       <Chevron />
     </Link>

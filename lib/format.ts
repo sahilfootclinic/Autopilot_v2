@@ -31,6 +31,20 @@ export function formatPercent(n: number, digits = 2): string {
   return `${n.toFixed(digits)}%`;
 }
 
+/** Share counts as 50k, 3.0M, 2.0B. */
+export function formatCompactShares(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  const sign = n < 0 ? "−" : "";
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(1)}B`;
+  if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(1)}M`;
+  if (abs >= 1e3) {
+    const k = abs / 1e3;
+    return `${sign}${k >= 100 ? Math.round(k).toString() : k.toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return `${sign}${Math.round(abs)}`;
+}
+
 export function formatDate(iso: string): string {
   if (!iso) return "—";
   try {

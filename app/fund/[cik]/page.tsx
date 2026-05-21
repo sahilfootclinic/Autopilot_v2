@@ -20,6 +20,7 @@ import { ChangesPanel } from "@/components/ChangesPanel";
 import { AboutCard } from "@/components/AboutCard";
 import { Avatar } from "@/components/Avatar";
 import { WatchlistButton } from "@/components/WatchlistButton";
+import { QuarterSwitcher } from "@/components/QuarterSwitcher";
 import { getBio } from "@/data/bios";
 import { photoOrPerson } from "@/lib/avatars";
 import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
@@ -61,8 +62,10 @@ export default async function FundPage({
   const displayFirm = investor?.name ?? profile.name;
   const tagline = investor?.tagline;
 
+  // Collapse duplicate rows (a 13F can list the same security several
+  // times) into one line per security.
   const top = holdings
-    ? [...holdings.holdings].sort((a, b) => b.value - a.value)
+    ? aggregateHoldings(holdings.holdings).sort((a, b) => b.value - a.value)
     : [];
   const top10Value = top.slice(0, 10).reduce((s, h) => s + h.value, 0);
   const top10Pct = holdings && holdings.totalValueUsd
@@ -140,7 +143,7 @@ export default async function FundPage({
         />
         <Stat
           label="Positions"
-          value={holdings ? formatNumber(holdings.totalPositions) : "—"}
+          value={holdings ? formatNumber(top.length) : "—"}
           sub="Distinct securities"
         />
         <Stat
@@ -152,41 +155,20 @@ export default async function FundPage({
 
       {/* Quarter switcher */}
       <div className="mt-10">
-        <h2 className="text-xl font-semibold mb-3">All quarters</h2>
-        <div className="flex flex-wrap gap-2">
-          {filings.slice(0, 16).map((f) => {
-            const active = f.accessionRaw === selected.accessionRaw;
-            return (
-              <Link
-                key={f.accessionRaw}
-                href={`/fund/${cik}?accession=${f.accessionRaw}`}
-                className={
-                  "rounded-full border px-3.5 py-1.5 text-sm transition " +
-                  (active
-                    ? "bg-ink-900 text-white border-ink-900"
-                    : "bg-white text-ink-700 border-ink-200 hover:border-ink-400")
-                }
-              >
-                {quarterLabel(f.reportDate)}
-                {f.form === "13F-HR/A" ? " (A)" : ""}
-              </Link>
-            );
-          })}
-        </div>
+        <h2 className="text-xl font-semibold mb-3">Quarters</h2>
+        <QuarterSwitcher
+          cik={cik}
+          filings={filings.map((f) => ({
+            accessionRaw: f.accessionRaw,
+            reportDate: f.reportDate,
+            form: f.form,
+          }))}
+          selectedAccession={selected.accessionRaw}
+        />
       </div>
 
       {investor && (
         <AboutCard name={investor.manager} bio={getBio(investor.slug)} />
-      )}
-
-      {/* Changes vs prior quarter */}
-      {diff && (
-        <div className="mt-12">
-          <ChangesPanel
-            diff={diff}
-            currentQuarter={quarterLabel(selected.reportDate)}
-          />
-        </div>
       )}
 
       {/* Holdings */}
@@ -218,8 +200,34 @@ export default async function FundPage({
           </div>
         )}
       </div>
+
+      {/* Changes vs prior quarter */}
+      {diff && (
+        <div className="mt-12">
+          <ChangesPanel
+            diff={diff}
+            currentQuarter={quarterLabel(selected.reportDate)}
+          />
+        </div>
+      )}
     </div>
   );
+}
+
+function aggregateHoldings(list: Holding[]): Holding[] {
+  const map = new Map<string, Holding>();
+  for (const h of list) {
+    if (!h.cusip) continue;
+    const key = `${h.cusip.trim().toUpperCase()}|${h.putCall ?? ""}`;
+    const existing = map.get(key);
+    if (existing) {
+      existing.shares += h.shares;
+      existing.value += h.value;
+    } else {
+      map.set(key, { ...h });
+    }
+  }
+  return [...map.values()];
 }
 
 function Stat({
