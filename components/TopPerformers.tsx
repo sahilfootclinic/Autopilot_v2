@@ -67,10 +67,11 @@ export function TopPerformers({
             Not enough 13F history yet for this window.
           </div>
         ) : (
-          ranked.map(({ entry, val }) => (
+          ranked.map(({ entry, val }, i) => (
             <PerformerRow
               key={entry.slug}
               entry={entry}
+              rank={i + 1}
               badge={`${val >= 0 ? "+" : ""}${val.toFixed(1)}%`}
               badgeTone={val >= 0 ? "pos" : "neg"}
             />

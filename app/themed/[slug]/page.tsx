@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findThemedBySlug } from "@/lib/investors";
 import { Avatar } from "@/components/Avatar";
+import { AboutCard } from "@/components/AboutCard";
+import { getBio } from "@/data/bios";
 
 export default async function ThemedPortfolioPage({
   params,
@@ -51,6 +53,8 @@ export default async function ThemedPortfolioPage({
         </div>
         <p className="text-ink-700 leading-relaxed">{investor.description}</p>
       </div>
+
+      <AboutCard name={investor.manager} bio={getBio(investor.slug)} />
 
       <div className="mt-10">
         <h2 className="text-lg font-semibold mb-3">In the meantime</h2>

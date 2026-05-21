@@ -41,41 +41,39 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <TopPerformers entriesByCik={entriesByCik} perf={perfRows} />
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold tracking-tight">Popular</h2>
-            <Link
-              href="/search"
-              className="text-sm text-ink-600 hover:text-ink-900"
-            >
-              Browse all →
-            </Link>
-          </div>
-          <div className="bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
-            {popular.map((inv) => {
-              const p = inv.cik ? perfMap.get(inv.cik) : undefined;
-              return (
-                <PopularRow
-                  key={inv.slug}
-                  entry={investorEntry(inv)}
-                  amount={p?.currentValueUsd}
-                />
-              );
-            })}
-          </div>
-          <p className="text-xs text-ink-400 mt-3">
-            Most-followed funds, ranked by reported 13F portfolio value.
-          </p>
-        </section>
-      </section>
 
       <BrowseTabs
         funds={entries13F()}
         ai={entriesAI()}
         politicians={entriesPoliticians()}
       />
+
+      <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <TopPerformers entriesByCik={entriesByCik} perf={perfRows} />
+        <section>
+          <div className="mb-1">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Most Popular
+            </h2>
+            <p className="text-sm text-ink-400 mt-0.5">
+              Ranked by reported 13F portfolio value
+            </p>
+          </div>
+          <div className="mt-3 bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
+            {popular.map((inv, i) => {
+              const p = inv.cik ? perfMap.get(inv.cik) : undefined;
+              return (
+                <PopularRow
+                  key={inv.slug}
+                  entry={investorEntry(inv)}
+                  rank={i + 1}
+                  amount={p?.currentValueUsd}
+                />
+              );
+            })}
+          </div>
+        </section>
+      </section>
 
       <HowItWorks />
     </>
@@ -90,10 +88,10 @@ function Hero() {
           <span className="ticker-dot" />
           13F filings · AI portfolios · congressional trades
         </div>
-        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.05]">
-          Follow the world's
+        <h1 className="text-6xl md:text-8xl font-semibold tracking-tight text-ink-900 leading-[1.02]">
+          Follow
           <br />
-          <span className="gradient-text">smartest investors.</span>
+          <span className="gradient-text">The Money.</span>
         </h1>
         <p className="mt-6 text-lg md:text-xl text-ink-500 max-w-2xl mx-auto">
           Track what legendary funds, AI-managed portfolios, and members of
