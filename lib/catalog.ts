@@ -1,7 +1,13 @@
 import { INVESTORS_13F, THEMED_INVESTORS, type Investor } from "@/lib/investors";
 import { AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { POLITICIANS } from "@/data/politicians";
+import { PHOTOS } from "@/data/photoManifest";
 import { personAvatar, botAvatar } from "@/lib/avatars";
+
+/** Real photo if one was dropped into public/avatars/, else the fallback. */
+function pickImage(slug: string, fallback: string): string {
+  return PHOTOS[slug] ?? fallback;
+}
 
 export type EntityKind = "13f" | "ai" | "politician" | "themed";
 
@@ -48,7 +54,7 @@ export function investorEntry(inv: Investor): CatalogEntry {
     tagline: inv.tagline,
     badgeLabel: CATEGORY_LABEL[inv.category],
     comingSoon: inv.comingSoon,
-    image: inv.image ?? personAvatar(inv.manager),
+    image: pickImage(inv.slug, inv.image ?? personAvatar(inv.manager)),
   };
 }
 
@@ -76,7 +82,7 @@ export function entriesAI(): CatalogEntry[] {
     manager: p.model,
     tagline: p.tagline,
     badgeLabel: "AI Portfolio",
-    image: botAvatar(p.name),
+    image: pickImage(p.slug, botAvatar(p.name)),
   }));
 }
 
@@ -91,7 +97,7 @@ export function entriesPoliticians(): CatalogEntry[] {
     badgeLabel: "Politician",
     avatarBadge: p.party,
     avatarBadgeColor: p.party === "D" ? "#1A73E8" : "#D93025",
-    image: personAvatar(p.name),
+    image: pickImage(p.slug, personAvatar(p.name)),
   }));
 }
 
@@ -107,7 +113,7 @@ export function entriesTwitterLegends(): CatalogEntry[] {
       tagline: t.tagline,
       badgeLabel: "Twitter Legend",
       comingSoon: t.comingSoon,
-      image: personAvatar(t.manager),
+      image: pickImage(t.slug, personAvatar(t.manager)),
     })
   );
 }

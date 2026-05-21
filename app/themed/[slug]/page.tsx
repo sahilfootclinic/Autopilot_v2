@@ -4,7 +4,7 @@ import { findThemedBySlug } from "@/lib/investors";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
 import { getBio } from "@/data/bios";
-import { personAvatar } from "@/lib/avatars";
+import { photoOrPerson } from "@/lib/avatars";
 
 export default async function ThemedPortfolioPage({
   params,
@@ -29,7 +29,7 @@ export default async function ThemedPortfolioPage({
         <Avatar
           seed={investor.slug}
           label={investor.manager}
-          image={personAvatar(investor.manager)}
+          image={photoOrPerson(investor.slug, investor.manager)}
           size={80}
         />
         <div>

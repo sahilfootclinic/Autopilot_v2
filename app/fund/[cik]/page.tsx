@@ -20,7 +20,7 @@ import { ChangesPanel } from "@/components/ChangesPanel";
 import { AboutCard } from "@/components/AboutCard";
 import { Avatar } from "@/components/Avatar";
 import { getBio } from "@/data/bios";
-import { personAvatar } from "@/lib/avatars";
+import { photoOrPerson } from "@/lib/avatars";
 import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 
 export const revalidate = 21600;
@@ -89,7 +89,7 @@ export default async function FundPage({
           <Avatar
             seed={displayManager}
             label={displayManager}
-            image={personAvatar(displayManager)}
+            image={photoOrPerson(investor?.slug ?? "", displayManager)}
             size={72}
           />
           <div>

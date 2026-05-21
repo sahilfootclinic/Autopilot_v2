@@ -5,7 +5,7 @@ import { getPoliticianActivity } from "@/lib/politicians";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
 import { getBio } from "@/data/bios";
-import { personAvatar } from "@/lib/avatars";
+import { photoOrPerson } from "@/lib/avatars";
 import { PoliticianTrades } from "@/components/PoliticianTrades";
 import { formatDate, formatUsd } from "@/lib/format";
 
@@ -47,7 +47,7 @@ export default async function PoliticianPage({
         <Avatar
           seed={politician.slug}
           label={politician.name}
-          image={personAvatar(politician.name)}
+          image={photoOrPerson(politician.slug, politician.name)}
           badge={politician.party}
           badgeColor={partyColor}
           size={72}
