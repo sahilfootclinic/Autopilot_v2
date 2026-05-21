@@ -15,6 +15,7 @@ import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
 import { WatchlistSection } from "@/components/WatchlistSection";
 import { BitcoinCoin } from "@/components/BitcoinCoin";
+import { PHOTOS } from "@/data/photoManifest";
 import { getPerformanceForAll } from "@/lib/performance";
 
 export const revalidate = 21600;
@@ -95,7 +96,7 @@ function Hero() {
       <div className="mx-auto max-w-page px-6 pt-20 pb-28 md:pt-28 md:pb-36 text-center">
         <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
           Follow <span className="gradient-text">The Money</span>
-          <BitcoinCoin className="btc-coin-svg" />
+          <BitcoinCoin className="btc-coin-svg" image={PHOTOS["bitcoin"]} />
         </h1>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />
