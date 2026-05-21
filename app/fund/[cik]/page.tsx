@@ -17,6 +17,8 @@ import {
 } from "@/lib/format";
 import { HoldingsTable, type HoldingPrice } from "@/components/HoldingsTable";
 import { ChangesPanel } from "@/components/ChangesPanel";
+import { AboutCard } from "@/components/AboutCard";
+import { getBio } from "@/data/bios";
 import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 
 export const revalidate = 21600;
@@ -152,6 +154,10 @@ export default async function FundPage({
           })}
         </div>
       </div>
+
+      {investor && (
+        <AboutCard name={investor.manager} bio={getBio(investor.slug)} />
+      )}
 
       {/* Changes vs prior quarter */}
       {diff && (

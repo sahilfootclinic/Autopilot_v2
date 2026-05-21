@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAiPortfolio, AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { Avatar } from "@/components/Avatar";
+import { AboutCard } from "@/components/AboutCard";
+import { getBio } from "@/data/bios";
 import { getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 import { formatDate, formatPercent } from "@/lib/format";
 
@@ -175,6 +177,8 @@ export default async function AiPortfolioPage({
           </div>
         </div>
       </section>
+
+      <AboutCard name={portfolio.manager} bio={getBio(portfolio.slug)} />
 
       <div className="mt-8 flex flex-wrap gap-3">
         {AI_PORTFOLIOS.filter((p) => p.slug !== portfolio.slug).map((p) => (

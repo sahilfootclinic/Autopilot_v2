@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getPolitician, POLITICIANS } from "@/data/politicians";
 import { getPoliticianActivity } from "@/lib/politicians";
 import { Avatar } from "@/components/Avatar";
+import { AboutCard } from "@/components/AboutCard";
+import { getBio } from "@/data/bios";
 import { PoliticianTrades } from "@/components/PoliticianTrades";
 import { formatDate, formatUsd } from "@/lib/format";
 
@@ -74,6 +76,8 @@ export default async function PoliticianPage({
           value={activity?.lastTradeDate ? formatDate(activity.lastTradeDate) : "—"}
         />
       </div>
+
+      <AboutCard name={politician.name} bio={getBio(politician.slug)} />
 
       <div className="mt-6 rounded-xl border border-ink-100 bg-ink-50 px-4 py-3 text-sm text-ink-600">
         These are congressional STOCK Act Periodic Transaction Reports — not SEC

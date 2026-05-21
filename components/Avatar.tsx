@@ -9,6 +9,8 @@ export type AvatarProps = {
   badge?: string;
   badgeColor?: string;
   size?: number;
+  /** "circle" for people, "squircle" for portfolio thumbnails */
+  shape?: "circle" | "squircle";
   className?: string;
 };
 
@@ -48,8 +50,11 @@ export function Avatar({
   badge,
   badgeColor = "#0A0A0A",
   size = 48,
+  shape = "circle",
   className = "",
 }: AvatarProps) {
+  const radius = shape === "squircle" ? Math.round(size * 0.28) : size / 2;
+
   if (image) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -58,8 +63,8 @@ export function Avatar({
         alt={label}
         width={size}
         height={size}
-        className={`rounded-full object-cover bg-ink-100 shrink-0 ${className}`}
-        style={{ width: size, height: size }}
+        className={`object-cover bg-ink-100 shrink-0 ${className}`}
+        style={{ width: size, height: size, borderRadius: radius }}
       />
     );
   }
@@ -67,10 +72,11 @@ export function Avatar({
   const fontSize = Math.round(size * 0.38);
   return (
     <div
-      className={`relative rounded-full flex items-center justify-center text-white font-semibold shrink-0 ${className}`}
+      className={`relative flex items-center justify-center text-white font-semibold shrink-0 ${className}`}
       style={{
         width: size,
         height: size,
+        borderRadius: radius,
         background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
         fontSize,
         letterSpacing: "-0.02em",
