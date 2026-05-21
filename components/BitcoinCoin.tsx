@@ -1,7 +1,25 @@
 // A small gold-coin rendering of the Bitcoin symbol, used as the
-// full stop after "Follow The Money".
+// full stop after "Follow The Money". If a photo named bitcoin.* is
+// dropped into public/avatars/, that image is used instead.
 
-export function BitcoinCoin({ className = "" }: { className?: string }) {
+export function BitcoinCoin({
+  className = "",
+  image,
+}: {
+  className?: string;
+  image?: string;
+}) {
+  if (image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={image}
+        alt="Bitcoin"
+        className={className}
+        style={{ borderRadius: "9999px", objectFit: "cover" }}
+      />
+    );
+  }
   return (
     <svg
       viewBox="0 0 64 64"
@@ -62,3 +80,4 @@ export function BitcoinCoin({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
