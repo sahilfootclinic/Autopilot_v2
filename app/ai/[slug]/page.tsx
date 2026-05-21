@@ -152,7 +152,14 @@ export default async function AiPortfolioPage({
                         ticker={r.ticker}
                         className="font-semibold text-ink-900"
                       />
-                      <div className="text-xs text-ink-500">{r.name}</div>
+                      <div className="text-xs text-ink-500">
+                        <Link
+                          href={`/stock/${encodeURIComponent(r.ticker.toUpperCase())}`}
+                          className="hover:text-accent-dark hover:underline"
+                        >
+                          {r.name}
+                        </Link>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums font-medium">
                       {r.weight}%
