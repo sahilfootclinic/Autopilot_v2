@@ -31,8 +31,8 @@ body {
 
 .hero-gradient {
   background:
-    radial-gradient(125% 95% at 50% -12%, rgba(15, 157, 88, 0.34) 0%, rgba(15, 157, 88, 0.14) 38%, rgba(15, 157, 88, 0.03) 62%, rgba(15, 157, 88, 0) 78%),
-    linear-gradient(180deg, #f3faf5 0%, #ffffff 72%);
+    radial-gradient(140% 125% at 50% -16%, rgba(9, 104, 54, 0.5) 0%, rgba(11, 120, 64, 0.26) 42%, rgba(13, 140, 78, 0.1) 66%, rgba(15, 157, 88, 0) 90%),
+    linear-gradient(180deg, #e9f5ee 0%, #ffffff 92%);
 }
 
 .ticker-dot {
@@ -44,25 +44,33 @@ body {
   box-shadow: 0 0 0 4px rgba(15, 157, 88, 0.18);
 }
 
-/* Bitcoin glyph used as the full stop after "Follow The Money" */
-.btc-dot {
-  display: inline-block;
-  font-size: 0.32em;
-  vertical-align: 0.12em;
-  margin-left: 0.04em;
-  transform: rotate(16deg);
-  background: linear-gradient(
-    150deg,
-    #fff7cc 0%,
-    #f4cf63 18%,
-    #c79520 36%,
-    #fff3b0 50%,
-    #b07d12 66%,
-    #e7c252 82%,
-    #8a6210 100%
+/* Bitcoin coin used as the full stop after "Follow The Money" */
+.btc-coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 9999px;
+  margin-left: 0.06em;
+  vertical-align: -0.08em;
+  background: radial-gradient(
+    circle at 36% 30%,
+    #fff3b0 0%,
+    #f0c64b 38%,
+    #c79320 68%,
+    #8a6110 100%
   );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 1px rgba(110, 75, 0, 0.45));
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 248, 200, 0.7),
+    inset 0 -2.5px 3px rgba(95, 60, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.btc-coin > span {
+  font-size: 0.21em;
+  font-weight: 800;
+  line-height: 1;
+  color: #6e4c08;
+  text-shadow: 0 1px 0 rgba(255, 244, 200, 0.45);
 }
