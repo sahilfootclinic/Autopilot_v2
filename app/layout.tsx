@@ -39,11 +39,11 @@ function SiteHeader() {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
               d="M12 2.5l7.5 3.2v5c0 5.2-3.2 9-7.5 10.8C7.7 19.7 4.5 15.9 4.5 10.7v-5L12 2.5z"
-              stroke="#0F9D58"
+              stroke="#228B22"
               strokeWidth="2"
               strokeLinejoin="round"
             />
-            <circle cx="12" cy="11" r="2.4" fill="#0F9D58" />
+            <circle cx="12" cy="11" r="2.4" fill="#228B22" />
           </svg>
           <span className="font-semibold tracking-tight text-lg">
             Sentinel

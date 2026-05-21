@@ -29,7 +29,7 @@ function initials(name: string): string {
 }
 
 const GRADIENTS: [string, string][] = [
-  ["#0F9D58", "#0B7E45"],
+  ["#228B22", "#1A6B1A"],
   ["#1A73E8", "#0B57B0"],
   ["#9334E6", "#5E18A6"],
   ["#D93025", "#A01A12"],

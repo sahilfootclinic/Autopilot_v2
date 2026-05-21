@@ -22,9 +22,9 @@ const config: Config = {
           900: "#18181B",
         },
         accent: {
-          DEFAULT: "#0F9D58",
-          dark: "#0B7E45",
-          light: "#E6F4EC",
+          DEFAULT: "#228B22",
+          dark: "#1A6B1A",
+          light: "#E8F2E8",
         },
         loss: "#D93025",
       },
