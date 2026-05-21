@@ -16,7 +16,11 @@ export function BitcoinCoin({
         src={image}
         alt="Bitcoin"
         className={className}
-        style={{ borderRadius: "9999px", objectFit: "cover" }}
+        style={{
+          borderRadius: "9999px",
+          objectFit: "cover",
+          objectPosition: "95% 50%",
+        }}
       />
     );
   }
