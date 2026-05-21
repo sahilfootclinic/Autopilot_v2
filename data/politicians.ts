@@ -1,4 +1,4 @@
-// U.S. House members whose STOCK Act trade disclosures we surface.
+// U.S. Congress members whose STOCK Act trade disclosures we surface.
 // Data comes from the community house-stock-watcher dataset (see
 // lib/politicians.ts) — these are congressional Periodic Transaction
 // Reports, not SEC 13F filings.
@@ -10,7 +10,7 @@ export type Politician = {
   /** Lowercase tokens that must all appear in the dataset's representative field */
   matchTokens: string[];
   party: "D" | "R";
-  chamber: "House";
+  chamber: "House" | "Senate";
   state: string;
   role: string;
   tagline: string;
@@ -66,6 +66,36 @@ export const POLITICIANS: Politician[] = [
     state: "CA",
     role: "Representative, Silicon Valley",
     tagline: "Large, broadly diversified disclosures",
+  },
+  {
+    slug: "tommy-tuberville",
+    name: "Tommy Tuberville",
+    matchTokens: ["tuberville"],
+    party: "R",
+    chamber: "Senate",
+    state: "AL",
+    role: "Senator",
+    tagline: "One of the most active traders in the Senate",
+  },
+  {
+    slug: "michael-mccaul",
+    name: "Michael McCaul",
+    matchTokens: ["mccaul"],
+    party: "R",
+    chamber: "House",
+    state: "TX",
+    role: "Representative, House Foreign Affairs Committee",
+    tagline: "Defence & tech focus",
+  },
+  {
+    slug: "virginia-foxx",
+    name: "Virginia Foxx",
+    matchTokens: ["foxx", "virginia"],
+    party: "R",
+    chamber: "House",
+    state: "NC",
+    role: "Representative",
+    tagline: "Consistently active equity trader",
   },
 ];
 

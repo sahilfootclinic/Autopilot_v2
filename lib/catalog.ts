@@ -40,8 +40,13 @@ const HEDGE_FUND_PRIORITY = [
   "berkshire",
   "pershing-square",
   "bridgewater",
-  "duquesne",
   "situational-awareness",
+  "ark",
+  "soros",
+  "renaissance",
+  "appaloosa",
+  "scion",
+  "duquesne",
 ];
 
 function pickImage(slug: string, fallback: string): string {
@@ -110,21 +115,21 @@ export function entriesPoliticians(): CatalogEntry[] {
 }
 
 export function entriesTwitterLegends(): CatalogEntry[] {
-  return THEMED_INVESTORS.filter((t) => t.slug === "inverse-cramer").map(
-    (t) => ({
-      kind: "themed" as const,
-      slug: t.slug,
-      href: `/themed/${t.slug}`,
-      primary: t.name,
-      secondary: t.manager,
-      name: t.name,
-      manager: t.manager,
-      tagline: t.tagline,
-      badgeLabel: "Twitter Legend",
-      comingSoon: t.comingSoon,
-      image: pickImage(t.slug, personAvatar(t.manager)),
-    })
-  );
+  return THEMED_INVESTORS.map((t) => ({
+    kind: "themed" as const,
+    slug: t.slug,
+    href: `/themed/${t.slug}`,
+    primary: t.name,
+    secondary: t.manager,
+    name: t.name,
+    manager: t.manager,
+    tagline: t.tagline,
+    badgeLabel: "Twitter Legend",
+    comingSoon: t.comingSoon,
+    image: pickImage(t.slug, personAvatar(t.manager)),
+    imageZoom: AVATAR_TWEAKS[t.slug]?.zoom,
+    imageFocus: AVATAR_TWEAKS[t.slug]?.focus,
+  }));
 }
 
 export function entriesAll(): CatalogEntry[] {
