@@ -18,7 +18,9 @@ import {
 import { HoldingsTable, type HoldingPrice } from "@/components/HoldingsTable";
 import { ChangesPanel } from "@/components/ChangesPanel";
 import { AboutCard } from "@/components/AboutCard";
+import { Avatar } from "@/components/Avatar";
 import { getBio } from "@/data/bios";
+import { photoOrPerson } from "@/lib/avatars";
 import { cusipsToTickers, getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 
 export const revalidate = 21600;
@@ -83,16 +85,24 @@ export default async function FundPage({
       </div>
 
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
-            {displayManager}
-          </h1>
-          <p className="mt-2 text-ink-500 text-lg">{displayFirm}</p>
-          {tagline && (
-            <p className="mt-1 text-ink-400 text-sm uppercase tracking-wide">
-              {tagline}
-            </p>
-          )}
+        <div className="flex items-center gap-5">
+          <Avatar
+            seed={displayManager}
+            label={displayManager}
+            image={photoOrPerson(investor?.slug ?? "", displayManager)}
+            size={72}
+          />
+          <div>
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
+              {displayManager}
+            </h1>
+            <p className="mt-2 text-ink-500 text-lg">{displayFirm}</p>
+            {tagline && (
+              <p className="mt-1 text-ink-400 text-sm uppercase tracking-wide">
+                {tagline}
+              </p>
+            )}
+          </div>
         </div>
         <a
           href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik}&type=13F&dateb=&owner=include&count=40`}

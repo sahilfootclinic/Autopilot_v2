@@ -4,6 +4,7 @@ import { getAiPortfolio, AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { Avatar } from "@/components/Avatar";
 import { AboutCard } from "@/components/AboutCard";
 import { getBio } from "@/data/bios";
+import { photoOrBot } from "@/lib/avatars";
 import { getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 import { formatDate, formatPercent } from "@/lib/format";
 
@@ -65,8 +66,8 @@ export default async function AiPortfolioPage({
         <Avatar
           seed={portfolio.slug}
           label={portfolio.model}
-          badge="AI"
-          badgeColor="#9334E6"
+          image={photoOrBot(portfolio.slug, portfolio.name)}
+          shape="squircle"
           size={72}
         />
         <div>

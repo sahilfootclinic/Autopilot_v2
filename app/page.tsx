@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { popularInvestors, tradableInvestors } from "@/lib/investors";
 import {
-  entries13F,
+  entriesHedgeFunds,
   entriesAI,
   entriesPoliticians,
+  entriesTwitterLegends,
+  entriesAll,
   investorEntry,
   type CatalogEntry,
 } from "@/lib/catalog";
@@ -43,9 +45,11 @@ export default async function HomePage() {
       <Hero />
 
       <BrowseTabs
-        funds={entries13F()}
+        hedge={entriesHedgeFunds()}
         ai={entriesAI()}
         politicians={entriesPoliticians()}
+        twitter={entriesTwitterLegends()}
+        all={entriesAll()}
       />
 
       <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -83,20 +87,11 @@ export default async function HomePage() {
 function Hero() {
   return (
     <section className="hero-gradient">
-      <div className="mx-auto max-w-page px-6 pt-20 pb-12 md:pt-28 md:pb-16 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-3 py-1 text-xs font-medium text-ink-600 mb-6">
-          <span className="ticker-dot" />
-          13F filings · AI portfolios · congressional trades
-        </div>
-        <h1 className="text-6xl md:text-8xl font-semibold tracking-tight text-ink-900 leading-[1.02]">
-          Follow
-          <br />
-          <span className="gradient-text">The Money.</span>
+      <div className="mx-auto max-w-page px-6 pt-20 pb-14 md:pt-28 md:pb-20 text-center">
+        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
+          Follow <span className="gradient-text">The Money</span>
+          <span className="text-[#F7931A]">₿</span>
         </h1>
-        <p className="mt-6 text-lg md:text-xl text-ink-500 max-w-2xl mx-auto">
-          Track what legendary funds, AI-managed portfolios, and members of
-          Congress are buying and selling — pulled straight from the source.
-        </p>
         <div className="mt-10 max-w-xl mx-auto">
           <SearchBar />
         </div>
