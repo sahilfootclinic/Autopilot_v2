@@ -49,6 +49,7 @@ export const AVATAR_TWEAKS: Record<
   { zoom?: number; focus?: string }
 > = {
   "nancy-pelosi": { zoom: 1.5, focus: "50% 22%" },
+  "matt": { zoom: 1.8, focus: "50% 15%" },
 };
 
 /** Real photo from public/avatars/ if present, else a cartoon face. */

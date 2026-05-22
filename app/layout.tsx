@@ -72,6 +72,9 @@ function SiteHeader() {
           <Link href="/search" className="hover:text-ink-900 transition">
             Search
           </Link>
+          <Link href="/my-portfolio" className="hover:text-ink-900 transition">
+            My Portfolio
+          </Link>
           <Link href="/about" className="hover:text-ink-900 transition">
             About
           </Link>
