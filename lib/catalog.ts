@@ -4,6 +4,15 @@ import { POLITICIANS } from "@/data/politicians";
 import { PHOTOS } from "@/data/photoManifest";
 import { personAvatar, botAvatar, AVATAR_TWEAKS } from "@/lib/avatars";
 
+const POPULAR_SLUGS = [
+  "berkshire",
+  "pershing-square",
+  "ark",
+  "situational-awareness",
+  "nancy-pelosi",
+  "bridgewater",
+] as const;
+
 export type EntityKind = "13f" | "ai" | "politician" | "themed";
 
 export type CatalogEntry = {
@@ -139,4 +148,11 @@ export function entriesAll(): CatalogEntry[] {
     ...entriesPoliticians(),
     ...entriesTwitterLegends(),
   ];
+}
+
+export function entriesPopular(): CatalogEntry[] {
+  const all = entriesAll();
+  return POPULAR_SLUGS.map((slug) => all.find((e) => e.slug === slug)).filter(
+    (e): e is CatalogEntry => e != null
+  );
 }
