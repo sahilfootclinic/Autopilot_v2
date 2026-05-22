@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getYahooAuth, yahooHeaders, YAHOO_UA } from "@/lib/yahooAuth";
 
-const YAHOO_HEADERS: HeadersInit = {
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
-    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+const FALLBACK_HEADERS: HeadersInit = {
+  "User-Agent": YAHOO_UA,
   Accept: "application/json,text/plain,*/*",
 };
 
@@ -25,12 +24,19 @@ export async function GET(
   const period = req.nextUrl.searchParams.get("period") ?? "1M";
   const config = PERIOD_CONFIG[period] ?? PERIOD_CONFIG["1M"];
 
+  const auth = await getYahooAuth();
+  const crumbParam = auth?.crumb
+    ? `&crumb=${encodeURIComponent(auth.crumb)}`
+    : "";
+  const hdrs = auth?.cookie ? yahooHeaders(auth.cookie) : FALLBACK_HEADERS;
+
   const url =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}` +
-    `?range=${config.range}&interval=${config.interval}&includePrePost=false`;
+    `?range=${config.range}&interval=${config.interval}&includePrePost=false` +
+    crumbParam;
 
   try {
-    const res = await fetch(url, { headers: YAHOO_HEADERS });
+    const res = await fetch(url, { headers: hdrs });
     if (!res.ok) {
       return NextResponse.json({ error: "upstream error" }, { status: 502 });
     }

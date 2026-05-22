@@ -1,13 +1,8 @@
 // Yahoo Finance financial fundamentals for stock detail pages.
 // Uses v7/finance/quote and v10/finance/quoteSummary endpoints.
-// The same data yfinance (Python) fetches — no API key required.
+// The same data yfinance (Python) fetches — requires crumb auth since 2024.
 
-const YAHOO_HEADERS: HeadersInit = {
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
-    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-  Accept: "application/json,text/plain,*/*",
-};
+import { getYahooAuth, yahooHeaders } from "./yahooAuth";
 
 const REVALIDATE = 60 * 60 * 6; // 6h
 
@@ -49,49 +44,66 @@ export async function getStockFinancials(
   ticker: string
 ): Promise<StockFinancials | null> {
   const ySym = ticker.replace(/\./g, "-").toUpperCase();
-  // v7/finance/quote returns a rich quote object including most key fundamentals.
+
+  const auth = await getYahooAuth();
+  const crumb = auth?.crumb ?? "";
+  const cookie = auth?.cookie ?? "";
+  const crumbParam = crumb ? `&crumb=${encodeURIComponent(crumb)}` : "";
+  const hdrs = cookie
+    ? yahooHeaders(cookie)
+    : { "User-Agent": "Mozilla/5.0", Accept: "application/json" };
+
+  // v7/finance/quote — key fundamentals and market data.
   const quoteUrl =
     `https://query1.finance.yahoo.com/v7/finance/quote` +
     `?symbols=${encodeURIComponent(ySym)}&fields=` +
     `marketCap,trailingPE,forwardPE,trailingEps,epsTrailingTwelveMonths,` +
     `epsForward,fiftyTwoWeekHigh,fiftyTwoWeekLow,beta,` +
     `trailingAnnualDividendYield,bookValue,priceToBook,` +
-    `sharesOutstanding,averageAnalystRating,averageDailyVolume3Month`;
+    `sharesOutstanding,averageAnalystRating,averageDailyVolume3Month` +
+    crumbParam;
 
-  // v10/finance/quoteSummary for deeper financials.
+  // v10/finance/quoteSummary — deeper financials (margins, cash flow, etc.)
   const summaryUrl =
     `https://query1.finance.yahoo.com/v10/finance/quoteSummary/` +
-    `${encodeURIComponent(ySym)}?modules=financialData,defaultKeyStatistics`;
+    `${encodeURIComponent(ySym)}?modules=financialData,defaultKeyStatistics` +
+    crumbParam;
 
   try {
     const [quoteRes, summaryRes] = await Promise.all([
       fetch(quoteUrl, {
-        headers: YAHOO_HEADERS,
+        headers: hdrs,
         next: { revalidate: REVALIDATE },
       }).catch(() => null),
       fetch(summaryUrl, {
-        headers: YAHOO_HEADERS,
+        headers: hdrs,
         next: { revalidate: REVALIDATE },
       }).catch(() => null),
     ]);
 
-    const quoteData = quoteRes?.ok ? await quoteRes.json().catch(() => null) : null;
-    const summaryData = summaryRes?.ok
-      ? await summaryRes.json().catch(() => null)
-      : null;
+    const quoteData =
+      quoteRes?.ok ? await quoteRes.json().catch(() => null) : null;
+    const summaryData =
+      summaryRes?.ok ? await summaryRes.json().catch(() => null) : null;
 
     const q = quoteData?.quoteResponse?.result?.[0] ?? {};
-    const fin = summaryData?.quoteSummary?.result?.[0]?.financialData ?? {};
-    const stats = summaryData?.quoteSummary?.result?.[0]?.defaultKeyStatistics ?? {};
+    const fin =
+      summaryData?.quoteSummary?.result?.[0]?.financialData ?? {};
+    const stats =
+      summaryData?.quoteSummary?.result?.[0]?.defaultKeyStatistics ?? {};
 
     // Merge fields from both sources, preferring summary for fundamentals.
     return {
       ticker: ySym,
       marketCap: q.marketCap ?? stats.marketCap?.raw ?? null,
       trailingPE: q.trailingPE ?? stats.trailingPE?.raw ?? null,
-      forwardPE: q.forwardPE ?? stats.forwardPE?.raw ?? fin.forwardPE?.raw ?? null,
+      forwardPE:
+        q.forwardPE ?? stats.forwardPE?.raw ?? fin.forwardPE?.raw ?? null,
       trailingEps:
-        q.epsTrailingTwelveMonths ?? q.trailingEps ?? stats.trailingEps?.raw ?? null,
+        q.epsTrailingTwelveMonths ??
+        q.trailingEps ??
+        stats.trailingEps?.raw ??
+        null,
       revenue: fin.totalRevenue?.raw ?? null,
       ebitda: fin.ebitda?.raw ?? null,
       grossProfits: fin.grossProfits?.raw ?? null,
@@ -99,8 +111,10 @@ export async function getStockFinancials(
       beta: q.beta ?? stats.beta?.raw ?? null,
       dividendYield:
         q.trailingAnnualDividendYield ?? stats.dividendYield?.raw ?? null,
-      fiftyTwoWeekHigh: q.fiftyTwoWeekHigh ?? stats.fiftyTwoWeekHigh?.raw ?? null,
-      fiftyTwoWeekLow: q.fiftyTwoWeekLow ?? stats.fiftyTwoWeekLow?.raw ?? null,
+      fiftyTwoWeekHigh:
+        q.fiftyTwoWeekHigh ?? stats.fiftyTwoWeekHigh?.raw ?? null,
+      fiftyTwoWeekLow:
+        q.fiftyTwoWeekLow ?? stats.fiftyTwoWeekLow?.raw ?? null,
       priceToBook: q.priceToBook ?? stats.priceToBook?.raw ?? null,
       bookValue: q.bookValue ?? stats.bookValue?.raw ?? null,
       enterpriseValue: stats.enterpriseValue?.raw ?? null,
@@ -142,7 +156,11 @@ export type StockStatements = {
 function pickRaw(items: any[], field: string): StatementRow[] {
   return items
     .map((item: any) => ({
-      date: new Date((item.endDate?.raw ?? 0) * 1000).toISOString().slice(0, 10),
+      date: new Date(
+        (item.endDate?.raw ?? 0) * 1000
+      )
+        .toISOString()
+        .slice(0, 10),
       value: item[field]?.raw ?? null,
     }))
     .filter((r) => r.date !== "1970-01-01");
@@ -153,6 +171,15 @@ export async function getStockStatements(
   ticker: string
 ): Promise<StockStatements | null> {
   const ySym = ticker.replace(/\./g, "-").toUpperCase();
+
+  const auth = await getYahooAuth();
+  const crumb = auth?.crumb ?? "";
+  const cookie = auth?.cookie ?? "";
+  const crumbParam = crumb ? `&crumb=${encodeURIComponent(crumb)}` : "";
+  const hdrs = cookie
+    ? yahooHeaders(cookie)
+    : { "User-Agent": "Mozilla/5.0", Accept: "application/json" };
+
   const modules = [
     "incomeStatementHistory",
     "incomeStatementHistoryQuarterly",
@@ -162,11 +189,12 @@ export async function getStockStatements(
 
   const url =
     `https://query1.finance.yahoo.com/v10/finance/quoteSummary/` +
-    `${encodeURIComponent(ySym)}?modules=${modules}`;
+    `${encodeURIComponent(ySym)}?modules=${modules}` +
+    crumbParam;
 
   try {
     const res = await fetch(url, {
-      headers: YAHOO_HEADERS,
+      headers: hdrs,
       next: { revalidate: REVALIDATE },
     }).catch(() => null);
 
@@ -188,27 +216,45 @@ export async function getStockStatements(
       incomeAnnual: [
         { label: "Total Revenue", rows: pickRaw(incStmts, "totalRevenue") },
         { label: "Gross Profit", rows: pickRaw(incStmts, "grossProfit") },
-        { label: "Operating Income", rows: pickRaw(incStmts, "operatingIncome") },
+        {
+          label: "Operating Income",
+          rows: pickRaw(incStmts, "operatingIncome"),
+        },
         { label: "Net Income", rows: pickRaw(incStmts, "netIncome") },
         { label: "EBITDA", rows: pickRaw(incStmts, "ebitda") },
       ],
       incomeQuarterly: [
         { label: "Total Revenue", rows: pickRaw(incStmtsQ, "totalRevenue") },
         { label: "Gross Profit", rows: pickRaw(incStmtsQ, "grossProfit") },
-        { label: "Operating Income", rows: pickRaw(incStmtsQ, "operatingIncome") },
+        {
+          label: "Operating Income",
+          rows: pickRaw(incStmtsQ, "operatingIncome"),
+        },
         { label: "Net Income", rows: pickRaw(incStmtsQ, "netIncome") },
       ],
       balanceAnnual: [
         { label: "Total Assets", rows: pickRaw(balSheets, "totalAssets") },
-        { label: "Total Liabilities", rows: pickRaw(balSheets, "totalLiab") },
-        { label: "Stockholders' Equity", rows: pickRaw(balSheets, "totalStockholderEquity") },
-        { label: "Cash & Equivalents", rows: pickRaw(balSheets, "cash") },
+        {
+          label: "Total Liabilities",
+          rows: pickRaw(balSheets, "totalLiab"),
+        },
+        {
+          label: "Stockholders' Equity",
+          rows: pickRaw(balSheets, "totalStockholderEquity"),
+        },
+        {
+          label: "Cash & Equivalents",
+          rows: pickRaw(balSheets, "cash"),
+        },
         { label: "Total Debt", rows: pickRaw(balSheets, "totalDebt") },
       ],
       cashflowAnnual: [
         {
           label: "Operating Cash Flow",
-          rows: pickRaw(cfStmts, "totalCashFromOperatingActivities"),
+          rows: pickRaw(
+            cfStmts,
+            "totalCashFromOperatingActivities"
+          ),
         },
         {
           label: "Capital Expenditures",
