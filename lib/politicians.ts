@@ -1,4 +1,5 @@
 import { POLITICIANS, type Politician } from "@/data/politicians";
+import { POLITICIAN_SUPPLEMENTS } from "@/data/politicianSupplements";
 
 // Congressional STOCK Act disclosures, sourced from the community
 // house-stock-watcher dataset (House Periodic Transaction Reports).
@@ -110,6 +111,18 @@ export async function getPoliticianActivity(
       owner: String(row?.owner ?? "").trim(),
     });
   }
+  // Merge any manually-entered supplement trades (deduplicated by date+ticker+type).
+  const supplements = POLITICIAN_SUPPLEMENTS[p.slug] ?? [];
+  for (const s of supplements) {
+    const exists = trades.some(
+      (t) =>
+        t.transactionDate === s.transactionDate &&
+        t.ticker === s.ticker &&
+        t.type === s.type
+    );
+    if (!exists) trades.push(s);
+  }
+
   trades.sort((a, b) =>
     (b.transactionDate || "").localeCompare(a.transactionDate || "")
   );
