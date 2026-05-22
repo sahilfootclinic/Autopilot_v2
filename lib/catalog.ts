@@ -7,7 +7,7 @@ import { personAvatar, botAvatar, AVATAR_TWEAKS } from "@/lib/avatars";
 const POPULAR_SLUGS = [
   "berkshire",
   "pershing-square",
-  "ark",
+  "matt",
   "situational-awareness",
   "nancy-pelosi",
   "bridgewater",

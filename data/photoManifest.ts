@@ -5,6 +5,7 @@ export const PHOTOS: Record<string, string> = {
   "berkshire": "/avatars/berkshire.webp",
   "bitcoin": "/avatars/bitcoin.jpg",
   "inverse-cramer": "/avatars/inverse-cramer.jpg",
+  "matt": "/avatars/matt.jpg",
   "nancy-pelosi": "/avatars/nancy-pelosi.jpg",
   "pershing-square": "/avatars/pershing-square.webp",
   "situational-awareness": "/avatars/situational-awareness.jpg"
