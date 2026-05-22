@@ -3,7 +3,7 @@ import { whalesHolding } from "@/lib/whaleIndex";
 import { AI_PORTFOLIOS } from "@/data/aiPortfolios";
 import { getAllPoliticianSummaries } from "@/lib/politicians";
 import { getPriceSeries } from "@/lib/prices";
-import { getStockFinancials } from "@/lib/yahoo";
+import { getStockFinancials, getStockStatements } from "@/lib/yahoo";
 import { Avatar } from "@/components/Avatar";
 import { photoOrPerson } from "@/lib/avatars";
 import { getCompanyInfo } from "@/data/companies";
@@ -16,7 +16,7 @@ import {
   formatUsd,
   formatPercent,
 } from "@/lib/format";
-import type { StockFinancials } from "@/lib/yahoo";
+import type { StockFinancials, StockStatements } from "@/lib/yahoo";
 
 export const revalidate = 21600; // 6h
 
@@ -30,11 +30,12 @@ export default async function StockPage({
   const { ticker: raw } = await params;
   const ticker = decodeURIComponent(raw).trim().toUpperCase().replace(/\./g, "-");
 
-  const [whales, polSummaries, price, financials] = await Promise.all([
+  const [whales, polSummaries, price, financials, statements] = await Promise.all([
     whalesHolding(ticker).catch(() => []),
     getAllPoliticianSummaries().catch(() => new Map()),
     getPriceSeries(ticker).catch(() => null),
     getStockFinancials(ticker).catch(() => null),
+    MAG7_TICKERS.has(ticker) ? getStockStatements(ticker).catch(() => null) : Promise.resolve(null),
   ]);
 
   const aiHolders = AI_PORTFOLIOS.flatMap((p) =>
@@ -179,6 +180,11 @@ export default async function StockPage({
         <FinancialsSection ticker={ticker} financials={financials} />
       )}
 
+      {/* Full financial statements (Mag 7 only) */}
+      {statements && (
+        <StatementsSection statements={statements} />
+      )}
+
       {nothingFound && (
         <div className="mt-10 rounded-2xl border border-ink-100 bg-ink-50 p-8 text-center text-ink-500">
           None of the funds, AI portfolios, or politicians we track currently
@@ -314,8 +320,9 @@ export default async function StockPage({
 
       <p className="mt-10 text-xs text-ink-400">
         Hedge-fund data from SEC 13F filings (largest positions indexed).
-        Politician trades from congressional STOCK Act disclosures. Financial
-        data and prices via Yahoo Finance. Not investment advice.
+        Politician trades from congressional STOCK Act disclosures. Stock prices,
+        financial statements, and historical data sourced via Yahoo Finance
+        (the same underlying data as yfinance). Not investment advice.
       </p>
     </div>
   );
@@ -493,9 +500,101 @@ function FinancialsSection({
       </div>
 
       <p className="mt-3 text-xs text-ink-400">
-        Financial data from Yahoo Finance. Trailing twelve months unless noted.
-        Not investment advice.
+        Financial data sourced via Yahoo Finance (same data as yfinance).
+        Trailing twelve months unless noted. Not investment advice.
       </p>
+    </section>
+  );
+}
+
+// ─── Financial statements (income / balance / cash flow) ──────────────────────
+
+function stmtFmt(n: number | null): string {
+  if (n == null) return "—";
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs >= 1e12) return `${sign}$${(abs / 1e12).toFixed(2)}T`;
+  if (abs >= 1e9) return `${sign}$${(abs / 1e9).toFixed(2)}B`;
+  if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(1)}M`;
+  return `${sign}$${abs.toLocaleString()}`;
+}
+
+function StatementsSection({ statements: s }: { statements: StockStatements }) {
+  const sections = [
+    { title: "Income Statement (Annual)", data: s.incomeAnnual },
+    { title: "Income Statement (Quarterly)", data: s.incomeQuarterly },
+    { title: "Balance Sheet (Annual)", data: s.balanceAnnual },
+    { title: "Cash Flow Statement (Annual)", data: s.cashflowAnnual },
+  ];
+
+  const hasData = sections.some((sec) =>
+    sec.data.some((row) => row.rows.some((r) => r.value != null))
+  );
+  if (!hasData) return null;
+
+  return (
+    <section className="mt-10 space-y-6">
+      <h2 className="text-xl font-semibold">Financial Statements</h2>
+      <p className="text-sm text-ink-500 -mt-4">
+        Sourced via Yahoo Finance (yfinance-equivalent data). All figures in USD.
+      </p>
+
+      {sections.map((sec) => {
+        const allDates = Array.from(
+          new Set(sec.data.flatMap((row) => row.rows.map((r) => r.date)))
+        ).sort((a, b) => b.localeCompare(a)); // newest first
+
+        if (allDates.length === 0) return null;
+
+        return (
+          <div key={sec.title} className="rounded-2xl border border-ink-100 bg-white shadow-card overflow-hidden">
+            <div className="px-5 py-3 border-b border-ink-100">
+              <h3 className="font-semibold text-sm text-ink-700">{sec.title}</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-ink-100 bg-ink-50">
+                    <th className="text-left px-4 py-2.5 font-medium text-ink-500 text-xs uppercase tracking-wide w-48">
+                      Line Item
+                    </th>
+                    {allDates.map((d) => (
+                      <th
+                        key={d}
+                        className="text-right px-4 py-2.5 font-medium text-ink-500 text-xs uppercase tracking-wide whitespace-nowrap"
+                      >
+                        {d.slice(0, 7)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-ink-50">
+                  {sec.data.map((row) => {
+                    const byDate = Object.fromEntries(
+                      row.rows.map((r) => [r.date, r.value])
+                    );
+                    return (
+                      <tr key={row.label} className="hover:bg-ink-50/40">
+                        <td className="px-4 py-2.5 text-ink-700 font-medium whitespace-nowrap">
+                          {row.label}
+                        </td>
+                        {allDates.map((d) => (
+                          <td
+                            key={d}
+                            className="px-4 py-2.5 text-right tabular-nums text-ink-900 whitespace-nowrap"
+                          >
+                            {stmtFmt(byDate[d] ?? null)}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
     </section>
   );
 }

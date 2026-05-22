@@ -1,5 +1,6 @@
 // Yahoo Finance financial fundamentals for stock detail pages.
-// Uses the v7/finance/quote endpoint (no API key, no crumb required).
+// Uses v7/finance/quote and v10/finance/quoteSummary endpoints.
+// The same data yfinance (Python) fetches — no API key required.
 
 const YAHOO_HEADERS: HeadersInit = {
   "User-Agent":
@@ -119,6 +120,105 @@ export async function getStockFinancials(
       sharesOutstanding:
         q.sharesOutstanding ?? stats.sharesOutstanding?.raw ?? null,
       averageVolume: q.averageDailyVolume3Month ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ─── Financial-statement history ──────────────────────────────────────────────
+
+export type StatementRow = { date: string; value: number | null };
+export type StatementSection = { label: string; rows: StatementRow[] };
+
+export type StockStatements = {
+  ticker: string;
+  incomeAnnual: StatementSection[];
+  incomeQuarterly: StatementSection[];
+  balanceAnnual: StatementSection[];
+  cashflowAnnual: StatementSection[];
+};
+
+function pickRaw(items: any[], field: string): StatementRow[] {
+  return items
+    .map((item: any) => ({
+      date: new Date((item.endDate?.raw ?? 0) * 1000).toISOString().slice(0, 10),
+      value: item[field]?.raw ?? null,
+    }))
+    .filter((r) => r.date !== "1970-01-01");
+}
+
+/** Fetch annual and quarterly income statements, balance sheets, and cash flows. */
+export async function getStockStatements(
+  ticker: string
+): Promise<StockStatements | null> {
+  const ySym = ticker.replace(/\./g, "-").toUpperCase();
+  const modules = [
+    "incomeStatementHistory",
+    "incomeStatementHistoryQuarterly",
+    "balanceSheetHistory",
+    "cashflowStatementHistory",
+  ].join(",");
+
+  const url =
+    `https://query1.finance.yahoo.com/v10/finance/quoteSummary/` +
+    `${encodeURIComponent(ySym)}?modules=${modules}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: YAHOO_HEADERS,
+      next: { revalidate: REVALIDATE },
+    }).catch(() => null);
+
+    if (!res?.ok) return null;
+    const data = await res.json().catch(() => null);
+    const result = data?.quoteSummary?.result?.[0] ?? {};
+
+    const incStmts: any[] =
+      result.incomeStatementHistory?.incomeStatementHistory ?? [];
+    const incStmtsQ: any[] =
+      result.incomeStatementHistoryQuarterly?.incomeStatementHistory ?? [];
+    const balSheets: any[] =
+      result.balanceSheetHistory?.balanceSheetStatements ?? [];
+    const cfStmts: any[] =
+      result.cashflowStatementHistory?.cashflowStatements ?? [];
+
+    return {
+      ticker: ySym,
+      incomeAnnual: [
+        { label: "Total Revenue", rows: pickRaw(incStmts, "totalRevenue") },
+        { label: "Gross Profit", rows: pickRaw(incStmts, "grossProfit") },
+        { label: "Operating Income", rows: pickRaw(incStmts, "operatingIncome") },
+        { label: "Net Income", rows: pickRaw(incStmts, "netIncome") },
+        { label: "EBITDA", rows: pickRaw(incStmts, "ebitda") },
+      ],
+      incomeQuarterly: [
+        { label: "Total Revenue", rows: pickRaw(incStmtsQ, "totalRevenue") },
+        { label: "Gross Profit", rows: pickRaw(incStmtsQ, "grossProfit") },
+        { label: "Operating Income", rows: pickRaw(incStmtsQ, "operatingIncome") },
+        { label: "Net Income", rows: pickRaw(incStmtsQ, "netIncome") },
+      ],
+      balanceAnnual: [
+        { label: "Total Assets", rows: pickRaw(balSheets, "totalAssets") },
+        { label: "Total Liabilities", rows: pickRaw(balSheets, "totalLiab") },
+        { label: "Stockholders' Equity", rows: pickRaw(balSheets, "totalStockholderEquity") },
+        { label: "Cash & Equivalents", rows: pickRaw(balSheets, "cash") },
+        { label: "Total Debt", rows: pickRaw(balSheets, "totalDebt") },
+      ],
+      cashflowAnnual: [
+        {
+          label: "Operating Cash Flow",
+          rows: pickRaw(cfStmts, "totalCashFromOperatingActivities"),
+        },
+        {
+          label: "Capital Expenditures",
+          rows: pickRaw(cfStmts, "capitalExpenditures"),
+        },
+        {
+          label: "Free Cash Flow",
+          rows: pickRaw(cfStmts, "freeCashFlow"),
+        },
+      ],
     };
   } catch {
     return null;
