@@ -54,10 +54,11 @@ export default async function HomePage() {
     };
   });
 
-  const popular = popularInvestors()
-    .filter((inv) => inv.slug !== "soros")
-    .slice(0, 6);
   const allEntries = entriesAll();
+  const popularEntries = entriesPopular();
+  const popular = popularInvestors()
+    .filter((inv) => popularEntries.some((e) => e.slug === inv.slug))
+    .slice(0, 5);
 
   const mag7Tickers = Object.keys(MAG7);
   const mag7Prices = await getPriceSeriesBatch(mag7Tickers).catch(
