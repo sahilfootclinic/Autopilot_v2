@@ -47,6 +47,9 @@ export const BIOS: Record<string, string> = {
 
   // ----- AI portfolios -----
 
+  matt:
+    "Matt is Sentinel's proprietary AI, built to do what the platform's data uniquely enables: synthesise the disclosed trades of every hedge fund manager, politician, and AI portfolio tracked on Sentinel into a single, continuously updated investment view. Where most AI portfolios score stocks in isolation, Matt cross-references thousands of disclosed positions across the entire Sentinel universe, tracks which investors are adding or trimming, and weights each signal by the investor's historical risk-adjusted performance. The result is a portfolio that reflects not just what any one investor believes, but where the collective intelligence of the market's most scrutinised participants actually converges — and where Matt's own analysis says the crowd has it right. Matt rebalances monthly and publishes a plain-English explanation of which portfolio signals drove each position. It is the only portfolio on Sentinel that knows what every other portfolio is doing.",
+
   "gpt-portfolio":
     "Alejandro Lopez-Lira is a finance professor whose research demonstrated that large language models can extract useful investment signal from financial news. The GPT Portfolio applies that work: each month ChatGPT scores every S&P 500 company on a 1–100 scale using firm financials, the past week's news headlines, and an AI-generated macro report. The top ~30 scored companies are shortlisted; ChatGPT then allocates a diversified 15-asset portfolio with per-position weights, investment theses and risk notes.",
 

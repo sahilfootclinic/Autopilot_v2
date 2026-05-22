@@ -1,16 +1,10 @@
 // Real-time-ish price data via Yahoo Finance's public chart endpoint,
 // plus CUSIP -> ticker resolution via the free OpenFIGI mapping API.
 //
-// Neither requires an API key. OpenFIGI allows 25 requests/min anonymously
-// (each request maps up to 10 ids). Yahoo's v8 chart endpoint works with a
-// browser-like User-Agent.
+// Yahoo requires a crumb token + session cookie since 2024 (same as yfinance).
+// OpenFIGI allows 25 requests/min anonymously (each request maps up to 10 ids).
 
-const YAHOO_HEADERS: HeadersInit = {
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
-    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-  Accept: "application/json,text/plain,*/*",
-};
+import { getYahooAuth, yahooHeaders } from "./yahooAuth";
 
 const PRICE_REVALIDATE = 60 * 30; // 30 min
 const FIGI_REVALIDATE = 60 * 60 * 24 * 7; // 7 days — CUSIP↔ticker rarely changes
@@ -57,14 +51,24 @@ export async function getPriceSeries(
   // Yahoo uses dashes for share classes (BRK.B -> BRK-B).
   const ySym = symbol.replace(/\./g, "-").toUpperCase();
   const now = Math.floor(Date.now() / 1000);
-  const period1 = sinceUnix ? Math.min(sinceUnix, now - 86400) : now - 86400 * 7;
+  const period1 = sinceUnix
+    ? Math.min(sinceUnix, now - 86400)
+    : now - 86400 * 7;
+
+  const auth = await getYahooAuth();
+  const crumb = auth?.crumb ?? "";
+  const cookie = auth?.cookie ?? "";
+
   const url =
-    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
-      ySym
-    )}` + `?period1=${period1}&period2=${now}&interval=1d`;
+    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}` +
+    `?period1=${period1}&period2=${now}&interval=1d` +
+    (crumb ? `&crumb=${encodeURIComponent(crumb)}` : "");
+
   try {
     const res = await fetch(url, {
-      headers: YAHOO_HEADERS,
+      headers: cookie
+        ? yahooHeaders(cookie)
+        : { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
       next: { revalidate: PRICE_REVALIDATE },
     });
     if (!res.ok) return null;

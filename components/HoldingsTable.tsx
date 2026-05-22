@@ -57,7 +57,7 @@ export function HoldingsTable({
     return list;
   }, [query, sortKey, holdings, priceByCusip]);
 
-  const visible = showAll ? filtered : filtered.slice(0, 25);
+  const visible = showAll ? filtered : filtered.slice(0, 10);
 
   return (
     <div className="rounded-2xl border border-ink-100 bg-white shadow-card overflow-hidden">
@@ -206,15 +206,30 @@ export function HoldingsTable({
         </table>
       </div>
 
-      {filtered.length > 25 && (
+      {filtered.length > 10 && (
         <div className="border-t border-ink-100 p-4 flex justify-center">
           <button
             onClick={() => setShowAll((s) => !s)}
-            className="text-sm font-medium text-ink-700 hover:text-ink-900"
+            className="inline-flex items-center gap-2 rounded-full border border-ink-200 px-5 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50 transition"
           >
             {showAll
-              ? "Show top 25 only"
-              : `Show all ${filtered.length} holdings →`}
+              ? "Show top 10 only"
+              : `See ${filtered.length - 10} more holdings`}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              className={showAll ? "rotate-180" : ""}
+            >
+              <path
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         </div>
       )}

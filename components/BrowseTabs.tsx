@@ -6,9 +6,14 @@ import type { CatalogEntry } from "@/lib/catalog";
 import { FundCard } from "./FundCard";
 import { Avatar } from "./Avatar";
 
-type TabKey = "hedge" | "ai" | "politician" | "twitter" | "profiles";
+type TabKey = "popular" | "hedge" | "ai" | "politician" | "twitter" | "profiles";
 
 const TABS: { key: TabKey; label: string; blurb: string }[] = [
+  {
+    key: "popular",
+    label: "Most Popular",
+    blurb: "The most-followed investors on the platform — from Buffett to Pelosi.",
+  },
   {
     key: "hedge",
     label: "Hedge Funds",
@@ -98,22 +103,25 @@ function ProfileRow({ entry }: { entry: CatalogEntry }) {
 }
 
 export function BrowseTabs({
+  popular,
   hedge,
   ai,
   politicians,
   twitter,
   all,
 }: {
+  popular: CatalogEntry[];
   hedge: CatalogEntry[];
   ai: CatalogEntry[];
   politicians: CatalogEntry[];
   twitter: CatalogEntry[];
   all: CatalogEntry[];
 }) {
-  const [tab, setTab] = useState<TabKey>("hedge");
+  const [tab, setTab] = useState<TabKey>("popular");
   const [hedgeExpanded, setHedgeExpanded] = useState(false);
 
   const counts: Record<TabKey, number> = {
+    popular: popular.length,
     hedge: hedge.length,
     ai: ai.length,
     politician: politicians.length,
@@ -171,7 +179,9 @@ export function BrowseTabs({
       ) : (
         <>
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {(tab === "hedge"
+            {(tab === "popular"
+              ? popular
+              : tab === "hedge"
               ? visibleHedge
               : tab === "ai"
               ? ai

@@ -6,11 +6,11 @@ import {
   entriesPoliticians,
   entriesTwitterLegends,
   entriesAll,
+  entriesPopular,
   investorEntry,
   type CatalogEntry,
 } from "@/lib/catalog";
 import { PopularRow } from "@/components/PerformerRow";
-import { SearchBar } from "@/components/SearchBar";
 import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
 import { WatchlistSection } from "@/components/WatchlistSection";
@@ -61,15 +61,16 @@ export default async function HomePage() {
 
       <WatchlistSection all={allEntries} />
 
-      <Mag7Section prices={mag7Prices} />
-
       <BrowseTabs
+        popular={entriesPopular()}
         hedge={entriesHedgeFunds()}
         ai={entriesAI()}
         politicians={entriesPoliticians()}
         twitter={entriesTwitterLegends()}
         all={allEntries}
       />
+
+      <Mag7Section prices={mag7Prices} />
 
       <section className="mx-auto max-w-page px-4 sm:px-6 py-10 sm:py-12 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
         <TopPerformers entriesByCik={entriesByCik} perf={perfRows} />
@@ -111,9 +112,6 @@ function Hero() {
           Follow <span className="gradient-text">The Money</span>
           <BitcoinCoin className="btc-coin-svg" image={PHOTOS["bitcoin"]} />
         </h1>
-        <div className="mt-8 sm:mt-10 max-w-xl mx-auto">
-          <SearchBar />
-        </div>
       </div>
     </section>
   );

@@ -34,7 +34,41 @@ const SHARED_METHODOLOGY = [
   "Methodology: A. Lopez-Lira, \"The GPT Portfolio White Paper V2.\"",
 ];
 
+const MATT_METHODOLOGY = [
+  "Continuously ingests every 13F filing, STOCK Act disclosure, and AI portfolio allocation tracked on Sentinel.",
+  "Scores each security by how widely it is held across tracked portfolios, weighted by each investor's historical risk-adjusted return.",
+  "Applies its own fundamental and sentiment filter using recent earnings data, news flow, and macro signals.",
+  "Constructs a 15-asset portfolio monthly, skewing toward high-conviction consensus names while adding asymmetric bets the crowd has missed.",
+  "Rebalances after each new wave of filings; position sizes are reviewed whenever a major investor adds or exits a position.",
+];
+
 export const AI_PORTFOLIOS: AiPortfolio[] = [
+  {
+    slug: "matt",
+    name: "Matt",
+    model: "Sentinel AI",
+    manager: "Sentinel",
+    tagline: "Sentinel's own AI — synthesising every portfolio on the platform into one monthly view",
+    rebalanceDate: "2026-05-01",
+    methodology: MATT_METHODOLOGY,
+    holdings: [
+      { ticker: "NVDA", name: "NVIDIA", weight: 13, thesis: "Most-held AI infrastructure play across every tracked portfolio — hedge funds, politicians and AI models all converge here." },
+      { ticker: "MSFT", name: "Microsoft", weight: 11, thesis: "Universal institutional anchor; Azure + Copilot monetisation is the highest-conviction cross-portfolio theme." },
+      { ticker: "AAPL", name: "Apple", weight: 9, thesis: "Buffett's largest position and a perennial institutional anchor — services margin and buybacks make it the consensus bedrock." },
+      { ticker: "META", name: "Meta Platforms", weight: 8, thesis: "AI-driven ad efficiency surfaced in both hedge fund and AI portfolio analysis; one of the strongest earnings revision stories." },
+      { ticker: "GOOGL", name: "Alphabet", weight: 7, thesis: "Search resilience and Gemini monetisation create a re-rating opportunity that multiple tracked portfolios are pricing in." },
+      { ticker: "AMZN", name: "Amazon", weight: 7, thesis: "AWS re-acceleration and retail margin expansion appear in nearly every AI model's conviction list." },
+      { ticker: "AVGO", name: "Broadcom", weight: 6, thesis: "Custom AI silicon and VMware software mix cited across GPT, Grok and multiple hedge fund 13F positions." },
+      { ticker: "LLY", name: "Eli Lilly", weight: 5, thesis: "Incretin franchise with a decade of runway — the lone healthcare mega-cap appearing in both AI and institutional top picks." },
+      { ticker: "PLTR", name: "Palantir", weight: 5, thesis: "Unusual consensus between AI portfolios and congressional traders; enterprise AI deployment momentum is well-documented." },
+      { ticker: "BRK-B", name: "Berkshire Hathaway B", weight: 5, thesis: "Dalio's All Weather and Buffett's own philosophy combined: cash optionality and broad earnings power as a portfolio ballast." },
+      { ticker: "JPM", name: "JPMorgan Chase", weight: 4, thesis: "Best-in-class bank surfacing in multiple AI scoring models; net interest income cushion through the rate cycle." },
+      { ticker: "V", name: "Visa", weight: 4, thesis: "Toll-road on global consumer spend — high incremental margin and near-zero capital intensity appear in every framework." },
+      { ticker: "GLD", name: "SPDR Gold Shares", weight: 4, thesis: "Dalio's risk-parity influence; gold as a macro hedge against fiscal stress and dollar debasement." },
+      { ticker: "COST", name: "Costco", weight: 4, thesis: "Defensive compounder that appears across value and macro frameworks — membership pricing power is uniquely durable." },
+      { ticker: "TSLA", name: "Tesla", weight: 8, thesis: "ARK's highest-conviction bet and Grok's second-largest position — autonomy and energy optionality create asymmetric upside." },
+    ],
+  },
   {
     slug: "gpt-portfolio",
     name: "GPT Portfolio",
