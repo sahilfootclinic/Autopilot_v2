@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { MobileNav } from "@/components/MobileNav";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +14,19 @@ export const metadata: Metadata = {
   title: "Sentinel — Follow The Money",
   description:
     "Track what legendary hedge funds, AI portfolios, and members of Congress are buying and selling.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Sentinel",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -33,9 +47,9 @@ export default function RootLayout({
 
 function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-ink-100">
-      <div className="mx-auto max-w-page px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-ink-100">
+      <div className="mx-auto max-w-page px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
               d="M12 2.5l7.5 3.2v5c0 5.2-3.2 9-7.5 10.8C7.7 19.7 4.5 15.9 4.5 10.7v-5L12 2.5z"
@@ -49,6 +63,8 @@ function SiteHeader() {
             Sentinel
           </span>
         </Link>
+
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-7 text-sm text-ink-600">
           <Link href="/" className="hover:text-ink-900 transition">
             Investors
@@ -60,21 +76,28 @@ function SiteHeader() {
             About
           </Link>
         </nav>
-        <Link
-          href="/search"
-          className="inline-flex items-center gap-2 rounded-full bg-ink-900 text-white text-sm font-medium px-4 py-2 hover:bg-ink-800 transition"
-        >
-          Browse filings
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M5 12h14M13 6l6 6-6 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/search"
+            className="inline-flex items-center gap-2 rounded-full bg-ink-900 text-white text-sm font-medium px-4 py-2 hover:bg-ink-800 active:bg-ink-700 transition"
+          >
+            <span className="hidden sm:inline">Browse filings</span>
+            <span className="sm:hidden">Search</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+
+          {/* Mobile hamburger */}
+          <MobileNav />
+        </div>
       </div>
     </header>
   );
@@ -82,8 +105,8 @@ function SiteHeader() {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-ink-100 mt-24">
-      <div className="mx-auto max-w-page px-6 py-10 text-sm text-ink-500 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <footer className="border-t border-ink-100 mt-16 sm:mt-24">
+      <div className="mx-auto max-w-page px-4 sm:px-6 py-8 sm:py-10 text-sm text-ink-500 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <p>
           Data sourced from{" "}
           <a

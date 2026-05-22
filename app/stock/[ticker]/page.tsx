@@ -8,6 +8,8 @@ import { Avatar } from "@/components/Avatar";
 import { photoOrPerson } from "@/lib/avatars";
 import { getCompanyInfo } from "@/data/companies";
 import { cleanCompanyName } from "@/lib/companyName";
+import { StockChart } from "@/components/StockChart";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import {
   formatCompactShares,
   formatDate,
@@ -17,6 +19,8 @@ import {
 import type { StockFinancials } from "@/lib/yahoo";
 
 export const revalidate = 21600; // 6h
+
+const MAG7_TICKERS = new Set(["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA"]);
 
 export default async function StockPage({
   params,
@@ -80,9 +84,12 @@ export default async function StockPage({
     aiHolders.length === 0 &&
     politicianTrades.length === 0;
 
+  const isMag7 = MAG7_TICKERS.has(ticker);
+
   return (
-    <div className="mx-auto max-w-page px-6 pt-10 pb-20">
-      <div className="text-sm text-ink-500 mb-6">
+    <div className="mx-auto max-w-page px-4 sm:px-6 pt-6 sm:pt-10 pb-20">
+      {/* Breadcrumb */}
+      <div className="text-sm text-ink-500 mb-5">
         <Link href="/" className="hover:text-ink-900">
           Home
         </Link>{" "}
@@ -92,21 +99,27 @@ export default async function StockPage({
         <span className="text-ink-700">{ticker}</span>
       </div>
 
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
-            {ticker}
-          </h1>
-          <p className="mt-1 text-ink-500 text-lg">
-            {companyName}
-            {info && (
-              <span className="text-ink-400"> · {info.sector}</span>
-            )}
-          </p>
+      {/* Header */}
+      <header className="flex flex-wrap items-start justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          {isMag7 && (
+            <CompanyLogo ticker={ticker} name={companyName} size={52} />
+          )}
+          <div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-ink-900 leading-tight">
+              {companyName}
+            </h1>
+            <p className="mt-0.5 text-ink-500 text-base sm:text-lg">
+              {ticker}
+              {info && (
+                <span className="text-ink-400"> · {info.sector}</span>
+              )}
+            </p>
+          </div>
         </div>
         {price && (
           <div className="text-right">
-            <div className="text-3xl font-semibold tabular-nums">
+            <div className="text-2xl sm:text-3xl font-semibold tabular-nums">
               ${price.current.toFixed(2)}
             </div>
             {dayChange != null && (
@@ -124,10 +137,13 @@ export default async function StockPage({
         )}
       </header>
 
+      {/* Interactive Stock Chart — client component */}
+      <StockChart ticker={ticker} currentPrice={price?.current} />
+
       {/* Company info (Mag-7) */}
       {info && (
-        <section className="mt-8 space-y-4">
-          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-6">
+        <section className="mt-6 space-y-4">
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-5 sm:p-6">
             <h2 className="text-lg font-semibold">About {info.name}</h2>
             <p className="mt-2 text-ink-700 leading-relaxed text-[15px]">
               {info.description}
@@ -139,9 +155,9 @@ export default async function StockPage({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-6">
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card p-5 sm:p-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-ink-100 flex items-center justify-center text-ink-500 text-lg font-semibold shrink-0 select-none">
+              <div className="w-11 h-11 rounded-full bg-ink-100 flex items-center justify-center text-ink-600 font-semibold text-base shrink-0 select-none">
                 {info.ceo.split(" ").map((n) => n[0]).join("")}
               </div>
               <div>
@@ -158,7 +174,7 @@ export default async function StockPage({
         </section>
       )}
 
-      {/* Financial metrics from Yahoo Finance */}
+      {/* Financial metrics */}
       {financials && (
         <FinancialsSection ticker={ticker} financials={financials} />
       )}
@@ -174,37 +190,37 @@ export default async function StockPage({
       {/* Hedge funds */}
       {whales.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-2xl font-semibold mb-1">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-1">
             Hedge funds holding {ticker}
           </h2>
           <p className="text-sm text-ink-500 mb-4">
             {whales.length} tracked fund{whales.length === 1 ? "" : "s"} report
             it among their largest positions.
           </p>
-          <div className="rounded-2xl border border-ink-100 bg-white shadow-card divide-y divide-ink-100 px-4">
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card divide-y divide-ink-100 px-3 sm:px-4">
             {whales.map((w) => (
               <Link
                 key={w.cik}
                 href={`/fund/${w.cik}`}
-                className="flex items-center gap-4 py-3.5 px-2 -mx-2 rounded-xl hover:bg-ink-50/60 transition"
+                className="flex items-center gap-3 sm:gap-4 py-3.5 px-2 -mx-2 rounded-xl hover:bg-ink-50/60 active:bg-ink-100 transition"
               >
                 <Avatar
                   seed={w.slug}
                   label={w.manager}
                   image={photoOrPerson(w.slug, w.manager)}
-                  size={48}
+                  size={44}
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-ink-900 truncate">
+                  <div className="font-semibold text-ink-900 truncate text-sm sm:text-base">
                     {w.fundName}
                   </div>
-                  <div className="text-sm text-ink-500 truncate">
+                  <div className="text-xs sm:text-sm text-ink-500 truncate">
                     {w.manager} · {formatCompactShares(w.shares)} ·{" "}
                     {formatDate(w.reportDate)}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-semibold tabular-nums">
+                  <div className="font-semibold tabular-nums text-sm sm:text-base">
                     {formatUsd(w.value, { compact: true })}
                   </div>
                   <div className="text-xs text-ink-500 tabular-nums">
@@ -220,21 +236,21 @@ export default async function StockPage({
       {/* AI portfolios */}
       {aiHolders.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">
             AI portfolios holding {ticker}
           </h2>
-          <div className="rounded-2xl border border-ink-100 bg-white shadow-card divide-y divide-ink-100 px-4">
+          <div className="rounded-2xl border border-ink-100 bg-white shadow-card divide-y divide-ink-100 px-3 sm:px-4">
             {aiHolders.map(({ portfolio, holding }) => (
               <Link
                 key={portfolio.slug}
                 href={`/ai/${portfolio.slug}`}
-                className="flex items-center justify-between gap-4 py-3.5 px-2 -mx-2 rounded-xl hover:bg-ink-50/60 transition"
+                className="flex items-center justify-between gap-4 py-3.5 px-2 -mx-2 rounded-xl hover:bg-ink-50/60 active:bg-ink-100 transition"
               >
-                <div className="font-semibold text-ink-900">
+                <div className="font-semibold text-ink-900 text-sm sm:text-base">
                   {portfolio.name}
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold tabular-nums">
+                  <div className="font-semibold tabular-nums text-sm sm:text-base">
                     {holding.weight}% weight
                   </div>
                   <div className="text-xs text-ink-500">{holding.thesis}</div>
@@ -248,7 +264,7 @@ export default async function StockPage({
       {/* Politicians */}
       {politicianTrades.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">
             Politicians who traded {ticker}
           </h2>
           <div className="space-y-4">
@@ -267,14 +283,14 @@ export default async function StockPage({
                   {p.trades.slice(0, 8).map((t: any, i: number) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between py-1.5 text-sm"
+                      className="flex items-center justify-between py-2 text-sm gap-2"
                     >
-                      <span className="text-ink-500">
+                      <span className="text-ink-500 text-xs sm:text-sm shrink-0">
                         {formatDate(t.transactionDate)}
                       </span>
                       <span
                         className={
-                          "font-medium capitalize " +
+                          "font-medium capitalize shrink-0 " +
                           (t.type === "purchase"
                             ? "text-accent-dark"
                             : t.type === "sale"
@@ -284,7 +300,7 @@ export default async function StockPage({
                       >
                         {t.type}
                       </span>
-                      <span className="text-ink-700 tabular-nums">
+                      <span className="text-ink-700 tabular-nums text-xs sm:text-sm text-right">
                         {t.amountRange}
                       </span>
                     </div>
@@ -346,11 +362,11 @@ function MetricCell({
   tone?: "pos" | "neg" | "neutral";
 }) {
   return (
-    <div className="rounded-xl border border-ink-100 bg-white px-4 py-3">
+    <div className="rounded-xl border border-ink-100 bg-white px-3 sm:px-4 py-3 min-h-[60px]">
       <div className="text-xs uppercase tracking-wide text-ink-400">{label}</div>
       <div
         className={
-          "mt-0.5 text-base font-semibold tabular-nums " +
+          "mt-0.5 text-sm sm:text-base font-semibold tabular-nums " +
           (tone === "pos"
             ? "text-accent-dark"
             : tone === "neg"
@@ -381,7 +397,7 @@ function FinancialsSection({
       <h2 className="text-xl font-semibold mb-4">Key Metrics</h2>
 
       {/* Valuation */}
-      <div className="mb-3">
+      <div className="mb-4">
         <h3 className="text-xs uppercase tracking-wide text-ink-400 mb-2">
           Valuation
         </h3>
@@ -398,7 +414,7 @@ function FinancialsSection({
       </div>
 
       {/* Financials */}
-      <div className="mb-3">
+      <div className="mb-4">
         <h3 className="text-xs uppercase tracking-wide text-ink-400 mb-2">
           Financials (TTM)
         </h3>
@@ -431,7 +447,7 @@ function FinancialsSection({
       </div>
 
       {/* Balance sheet */}
-      <div className="mb-3">
+      <div className="mb-4">
         <h3 className="text-xs uppercase tracking-wide text-ink-400 mb-2">
           Balance Sheet
         </h3>

@@ -15,6 +15,7 @@ import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
 import { WatchlistSection } from "@/components/WatchlistSection";
 import { BitcoinCoin } from "@/components/BitcoinCoin";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { PHOTOS } from "@/data/photoManifest";
 import { getPerformanceForAll } from "@/lib/performance";
 import { getPriceSeriesBatch } from "@/lib/prices";
@@ -22,9 +23,7 @@ import { MAG7 } from "@/data/companies";
 
 export const revalidate = 21600;
 
-// Minimum 13F portfolio value (USD) required to appear in Top Performers.
-// Excludes very small funds whose % swings reflect new capital flows, not returns.
-const MIN_PERF_AUM = 500_000_000; // $500 M
+const MIN_PERF_AUM = 500_000_000;
 
 export default async function HomePage() {
   const tradable = tradableInvestors();
@@ -36,7 +35,6 @@ export default async function HomePage() {
 
   const perfRows: PerfRow[] = tradable.map((inv) => {
     const p = perfMap.get(inv.cik!);
-    // Only include in performance rankings if AUM is large enough.
     const eligible = p != null && p.currentValueUsd >= MIN_PERF_AUM;
     return {
       cik: inv.cik!,
@@ -52,7 +50,6 @@ export default async function HomePage() {
   const popular = popularInvestors().slice(0, 6);
   const allEntries = entriesAll();
 
-  // Live prices for Mag-7 tickers.
   const mag7Tickers = Object.keys(MAG7);
   const mag7Prices = await getPriceSeriesBatch(mag7Tickers).catch(
     () => new Map()
@@ -64,7 +61,6 @@ export default async function HomePage() {
 
       <WatchlistSection all={allEntries} />
 
-      {/* Mag-7 Companies */}
       <Mag7Section prices={mag7Prices} />
 
       <BrowseTabs
@@ -75,7 +71,7 @@ export default async function HomePage() {
         all={allEntries}
       />
 
-      <section className="mx-auto max-w-page px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <section className="mx-auto max-w-page px-4 sm:px-6 py-10 sm:py-12 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
         <TopPerformers entriesByCik={entriesByCik} perf={perfRows} />
         <section>
           <div className="mb-1">
@@ -110,12 +106,12 @@ export default async function HomePage() {
 function Hero() {
   return (
     <section className="hero-gradient">
-      <div className="mx-auto max-w-page px-6 pt-20 pb-28 md:pt-28 md:pb-36 text-center">
-        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
+      <div className="mx-auto max-w-page px-4 sm:px-6 pt-16 pb-24 sm:pt-20 sm:pb-28 md:pt-28 md:pb-36 text-center">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
           Follow <span className="gradient-text">The Money</span>
           <BitcoinCoin className="btc-coin-svg" image={PHOTOS["bitcoin"]} />
         </h1>
-        <div className="mt-10 max-w-xl mx-auto">
+        <div className="mt-8 sm:mt-10 max-w-xl mx-auto">
           <SearchBar />
         </div>
       </div>
@@ -131,18 +127,18 @@ function Mag7Section({
   const companies = Object.values(MAG7);
 
   return (
-    <section className="mx-auto max-w-page px-6 py-10">
+    <section className="mx-auto max-w-page px-4 sm:px-6 py-8 sm:py-10">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">
             Magnificent 7
           </h2>
           <p className="text-sm text-ink-400 mt-0.5">
-            The world's most-held stocks — click any to see who owns them
+            The world's most-held stocks — tap any to see who owns them
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {companies.map((co) => {
           const series = prices.get(co.ticker);
           const dayChange =
@@ -155,11 +151,15 @@ function Mag7Section({
             <Link
               key={co.ticker}
               href={`/stock/${co.ticker}`}
-              className="group flex flex-col items-center rounded-2xl border border-ink-100 bg-white shadow-card hover:shadow-cardHover hover:-translate-y-0.5 p-4 transition text-center"
+              className="group flex flex-col items-center rounded-2xl border border-ink-100 bg-white shadow-card hover:shadow-cardHover hover:-translate-y-0.5 active:scale-95 p-4 transition text-center"
             >
-              <div className="w-10 h-10 rounded-full bg-ink-100 flex items-center justify-center text-ink-600 font-semibold text-sm mb-2 select-none group-hover:bg-accent group-hover:text-white transition">
-                {co.ticker === "BRK-B" ? "BRK" : co.ticker.slice(0, 3)}
-              </div>
+              {/* Logo replacing ticker circle */}
+              <CompanyLogo
+                ticker={co.ticker}
+                name={co.name}
+                size={44}
+                className="mb-2"
+              />
               <div className="font-semibold text-ink-900 text-sm leading-tight">
                 {co.name}
               </div>
@@ -210,15 +210,15 @@ function HowItWorks() {
   ];
   return (
     <section className="bg-ink-50 border-y border-ink-100 mt-8">
-      <div className="mx-auto max-w-page px-6 py-20">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center">
+      <div className="mx-auto max-w-page px-4 sm:px-6 py-16 sm:py-20">
+        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-center">
           How it works
         </h2>
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="mt-10 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
           {steps.map((s) => (
             <div
               key={s.n}
-              className="bg-white rounded-2xl border border-ink-100 p-7 shadow-card"
+              className="bg-white rounded-2xl border border-ink-100 p-6 sm:p-7 shadow-card"
             >
               <div className="text-sm font-semibold text-accent">{s.n}</div>
               <h3 className="mt-3 text-xl font-semibold">{s.title}</h3>
