@@ -3,6 +3,7 @@
 // The same data yfinance (Python) fetches — requires crumb auth since 2024.
 
 import { getYahooAuth, yahooHeaders } from "./yahooAuth";
+import mag7Data from "@/data/mag7_yfinance_data.json";
 
 const REVALIDATE = 60 * 60 * 6; // 6h
 
@@ -44,6 +45,45 @@ export async function getStockFinancials(
   ticker: string
 ): Promise<StockFinancials | null> {
   const ySym = ticker.replace(/\./g, "-").toUpperCase();
+
+  // Check if this is a MAG7 stock with cached data
+  const cachedData = (mag7Data as any)[ticker.toUpperCase()];
+  if (cachedData?.summary) {
+    const s = cachedData.summary;
+    return {
+      ticker: ySym,
+      marketCap: s.marketCap ?? null,
+      trailingPE: s.trailingPE ?? null,
+      forwardPE: s.forwardPE ?? null,
+      trailingEps: s.trailingEps ?? null,
+      revenue: s.revenue ?? null,
+      ebitda: s.ebitda ?? null,
+      grossProfits: s.grossProfits ?? null,
+      profitMargin: s.profitMargins ?? null,
+      beta: s.beta ?? null,
+      dividendYield: s.dividendYield ?? null,
+      fiftyTwoWeekHigh: s.fiftyTwoWeekHigh ?? null,
+      fiftyTwoWeekLow: s.fiftyTwoWeekLow ?? null,
+      priceToBook: s.priceToBook ?? null,
+      bookValue: s.bookValue ?? null,
+      enterpriseValue: s.enterpriseValue ?? null,
+      revenuePerShare: s.revenuePerShare ?? null,
+      returnOnAssets: s.returnOnAssets ?? null,
+      returnOnEquity: s.returnOnEquity ?? null,
+      debtToEquity: s.debtToEquity ?? null,
+      currentRatio: s.currentRatio ?? null,
+      totalCash: s.totalCash ?? null,
+      totalDebt: s.totalDebt ?? null,
+      freeCashflow: s.freeCashflow ?? null,
+      operatingCashflow: s.operatingCashflow ?? null,
+      revenueGrowth: s.revenueGrowth ?? null,
+      earningsGrowth: s.earningsGrowth ?? null,
+      grossMargins: s.grossMargins ?? null,
+      operatingMargins: s.operatingMargins ?? null,
+      sharesOutstanding: s.sharesOutstanding ?? null,
+      averageVolume: s.averageVolume ?? null,
+    };
+  }
 
   const auth = await getYahooAuth();
   const crumb = auth?.crumb ?? "";
@@ -171,6 +211,51 @@ export async function getStockStatements(
   ticker: string
 ): Promise<StockStatements | null> {
   const ySym = ticker.replace(/\./g, "-").toUpperCase();
+
+  // Check if this is a MAG7 stock with cached data
+  const cachedData = (mag7Data as any)[ticker.toUpperCase()];
+  if (cachedData?.incomeStatement) {
+    const inc = cachedData.incomeStatement.annual || {};
+    const incQ = cachedData.incomeStatement.quarterly || {};
+    const bal = cachedData.balanceSheet?.annual || {};
+    const cf = cachedData.cashFlow?.annual || {};
+
+    const convertDateMap = (obj: Record<string, any>): any[] => {
+      return Object.entries(obj).map(([date, value]) => ({
+        date,
+        value: value as number | null,
+      }));
+    };
+
+    return {
+      ticker: ySym,
+      incomeAnnual: [
+        { label: "Total Revenue", rows: convertDateMap(inc["Total Revenue"] || {}) },
+        { label: "Gross Profit", rows: convertDateMap(inc["Gross Profit"] || {}) },
+        { label: "Operating Income", rows: convertDateMap(inc["Operating Income"] || {}) },
+        { label: "Net Income", rows: convertDateMap(inc["Net Income"] || {}) },
+        { label: "EBITDA", rows: convertDateMap(inc["EBITDA"] || {}) },
+      ],
+      incomeQuarterly: [
+        { label: "Total Revenue", rows: convertDateMap(incQ["Total Revenue"] || {}) },
+        { label: "Gross Profit", rows: convertDateMap(incQ["Gross Profit"] || {}) },
+        { label: "Operating Income", rows: convertDateMap(incQ["Operating Income"] || {}) },
+        { label: "Net Income", rows: convertDateMap(incQ["Net Income"] || {}) },
+      ],
+      balanceAnnual: [
+        { label: "Total Assets", rows: convertDateMap(bal["Total Assets"] || {}) },
+        { label: "Total Liabilities", rows: convertDateMap(bal["Total Liabilities"] || {}) },
+        { label: "Stockholders' Equity", rows: convertDateMap(bal["Stockholders Equity"] || {}) },
+        { label: "Cash & Equivalents", rows: convertDateMap(bal["Cash & Equivalents"] || {}) },
+        { label: "Total Debt", rows: convertDateMap(bal["Total Debt"] || {}) },
+      ],
+      cashflowAnnual: [
+        { label: "Operating Cash Flow", rows: convertDateMap(cf["Operating Cash Flow"] || {}) },
+        { label: "Capital Expenditures", rows: convertDateMap(cf["Capital Expenditures"] || {}) },
+        { label: "Free Cash Flow", rows: convertDateMap(cf["Free Cash Flow"] || {}) },
+      ],
+    };
+  }
 
   const auth = await getYahooAuth();
   const crumb = auth?.crumb ?? "";
