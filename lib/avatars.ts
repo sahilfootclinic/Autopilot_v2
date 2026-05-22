@@ -48,6 +48,7 @@ export const AVATAR_TWEAKS: Record<
   string,
   { zoom?: number; focus?: string }
 > = {
+  "matt": { zoom: 1.4, focus: "50% 20%" },
   "nancy-pelosi": { zoom: 1.5, focus: "50% 22%" },
 };
 

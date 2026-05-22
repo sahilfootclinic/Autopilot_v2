@@ -101,6 +101,8 @@ export function entriesAI(): CatalogEntry[] {
     tagline: p.tagline,
     badgeLabel: "AI Portfolio",
     image: pickImage(p.slug, botAvatar(p.name)),
+    imageZoom: AVATAR_TWEAKS[p.slug]?.zoom,
+    imageFocus: AVATAR_TWEAKS[p.slug]?.focus,
   }));
 }
 

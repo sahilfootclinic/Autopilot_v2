@@ -6,7 +6,7 @@ import { AboutCard } from "@/components/AboutCard";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { AiHoldingsTable } from "@/components/AiHoldingsTable";
 import { getBio } from "@/data/bios";
-import { photoOrBot } from "@/lib/avatars";
+import { photoOrBot, AVATAR_TWEAKS } from "@/lib/avatars";
 import { getPriceSeriesBatch, isoToUnix } from "@/lib/prices";
 import { formatDate, formatPercent } from "@/lib/format";
 
@@ -71,6 +71,8 @@ export default async function AiPortfolioPage({
           image={photoOrBot(portfolio.slug, portfolio.name)}
           shape="squircle"
           size={72}
+          imageZoom={AVATAR_TWEAKS[portfolio.slug]?.zoom}
+          imageFocus={AVATAR_TWEAKS[portfolio.slug]?.focus}
         />
         <div className="flex-1 min-w-0">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-ink-900">
