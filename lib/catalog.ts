@@ -7,10 +7,9 @@ import { personAvatar, botAvatar, AVATAR_TWEAKS } from "@/lib/avatars";
 const POPULAR_SLUGS = [
   "berkshire",
   "pershing-square",
-  "matt",
   "situational-awareness",
-  "nancy-pelosi",
-  "bridgewater",
+  "ark",
+  "matt",
 ] as const;
 
 export type EntityKind = "13f" | "ai" | "politician" | "themed";

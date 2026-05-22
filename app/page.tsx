@@ -28,7 +28,14 @@ const MIN_PERF_AUM = 500_000_000;
 export default async function HomePage() {
   const tradable = tradableInvestors();
   const ciks = tradable.map((i) => i.cik!);
-  const perfMap = await getPerformanceForAll(ciks).catch(() => new Map());
+
+  let perfMap: Map<string, any>;
+  try {
+    perfMap = await getPerformanceForAll(ciks);
+  } catch (error) {
+    console.error("Failed to fetch performance data:", error);
+    perfMap = new Map();
+  }
 
   const entriesByCik: Record<string, CatalogEntry> = {};
   for (const inv of tradable) entriesByCik[inv.cik!] = investorEntry(inv);
@@ -47,8 +54,11 @@ export default async function HomePage() {
     };
   });
 
-  const popular = popularInvestors().slice(0, 6);
   const allEntries = entriesAll();
+  const popularEntries = entriesPopular();
+  const popular = popularInvestors()
+    .filter((inv) => popularEntries.some((e) => e.slug === inv.slug))
+    .slice(0, 5);
 
   const mag7Tickers = Object.keys(MAG7);
   const mag7Prices = await getPriceSeriesBatch(mag7Tickers).catch(
@@ -84,17 +94,20 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="mt-3 bg-white rounded-2xl border border-ink-100 shadow-card divide-y divide-ink-100 px-4">
-            {popular.map((inv, i) => {
-              const p = inv.cik ? perfMap.get(inv.cik) : undefined;
-              return (
+            {popular
+              .map((inv) => {
+                const p = inv.cik ? perfMap.get(inv.cik) : undefined;
+                return { inv, perf: p };
+              })
+              .filter((item) => item.perf && item.perf.currentValueUsd > 0)
+              .map(({ inv, perf }, i) => (
                 <PopularRow
                   key={inv.slug}
                   entry={investorEntry(inv)}
                   rank={i + 1}
-                  amount={p?.currentValueUsd}
+                  amount={perf?.currentValueUsd}
                 />
-              );
-            })}
+              ))}
           </div>
         </section>
       </section>
