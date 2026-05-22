@@ -125,12 +125,12 @@ export function BrowseTabs({
   const visibleHedge = hedgeExpanded ? hedge : hedge.slice(0, 5);
 
   return (
-    <section id="browse" className="mx-auto max-w-page px-6 py-12">
-      <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
+    <section id="browse" className="mx-auto max-w-page px-4 sm:px-6 py-10 sm:py-12">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
         Browse portfolios
       </h2>
 
-      <div className="mt-6 flex gap-1 border-b border-ink-100 overflow-x-auto">
+      <div className="mt-6 flex gap-0.5 sm:gap-1 border-b border-ink-100 overflow-x-auto pb-px -mx-1 px-1">
         {TABS.map((t) => {
           const isActive = tab === t.key;
           return (
@@ -138,7 +138,7 @@ export function BrowseTabs({
               key={t.key}
               onClick={() => setTab(t.key)}
               className={
-                "px-4 py-2.5 text-[15px] font-medium border-b-2 -mb-px whitespace-nowrap transition " +
+                "px-3 sm:px-4 py-2.5 text-sm sm:text-[15px] font-medium border-b-2 -mb-px whitespace-nowrap transition " +
                 (isActive
                   ? "border-ink-900 text-ink-900"
                   : "border-transparent text-ink-500 hover:text-ink-700")
