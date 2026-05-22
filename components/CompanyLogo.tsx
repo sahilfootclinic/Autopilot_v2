@@ -1,17 +1,7 @@
-"use client";
+// Server-safe component — uses locally hosted SVGs with no external deps.
+// SVG files live in /public/logos/{ticker}.svg
 
-import { useState } from "react";
-
-const LOGO_DOMAINS: Record<string, string> = {
-  AAPL: "apple.com",
-  MSFT: "microsoft.com",
-  GOOGL: "google.com",
-  GOOG: "google.com",
-  AMZN: "amazon.com",
-  NVDA: "nvidia.com",
-  META: "meta.com",
-  TSLA: "tesla.com",
-};
+const MAG7_LOGOS = new Set(["AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "NVDA", "META", "TSLA"]);
 
 const BRAND_COLORS: Record<string, string> = {
   AAPL: "#000000",
@@ -35,37 +25,36 @@ export function CompanyLogo({
   size?: number;
   className?: string;
 }) {
-  const [failed, setFailed] = useState(false);
-  const domain = LOGO_DOMAINS[ticker.toUpperCase()];
-  const color = BRAND_COLORS[ticker.toUpperCase()] ?? "#52525B";
+  const t = ticker.toUpperCase();
+  const hasLogo = MAG7_LOGOS.has(t);
+  const color = BRAND_COLORS[t] ?? "#52525B";
   const initial = (name || ticker).slice(0, 1).toUpperCase();
 
-  const fallback = (
-    <div
-      className={"rounded-full flex items-center justify-center font-bold text-white shrink-0 " + className}
-      style={{
-        width: size,
-        height: size,
-        background: color,
-        fontSize: size * 0.4,
-      }}
-    >
-      {initial}
-    </div>
-  );
-
-  if (!domain || failed) return fallback;
+  if (!hasLogo) {
+    return (
+      <div
+        className={"rounded-full flex items-center justify-center font-bold text-white shrink-0 " + className}
+        style={{
+          width: size,
+          height: size,
+          background: color,
+          fontSize: Math.round(size * 0.42),
+        }}
+      >
+        {initial}
+      </div>
+    );
+  }
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`https://logo.clearbit.com/${domain}`}
+      src={`/logos/${t}.svg`}
       alt={name + " logo"}
       width={size}
       height={size}
-      className={"rounded-full object-contain bg-white border border-ink-100 shrink-0 " + className}
+      className={"rounded-full object-contain bg-white p-[3px] border border-ink-100 shrink-0 " + className}
       style={{ width: size, height: size }}
-      onError={() => setFailed(true)}
     />
   );
 }
