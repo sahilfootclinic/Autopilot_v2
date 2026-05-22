@@ -88,7 +88,7 @@ export default function AboutPage() {
       {/* Matt */}
       <section className="mb-12 rounded-2xl border border-ink-100 bg-ink-50 p-7">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold text-lg">
+          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold text-lg mt-1">
             M
           </div>
           <div>
