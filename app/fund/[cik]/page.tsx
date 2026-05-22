@@ -40,8 +40,29 @@ export default async function FundPage({
   let profile;
   try {
     profile = await getFilerProfile(cik);
-  } catch {
-    notFound();
+  } catch (error) {
+    const investor = getInvestor(cik);
+    return (
+      <div className="mx-auto max-w-page px-6 py-24 text-center">
+        <h1 className="text-3xl font-semibold">Unable to load filings</h1>
+        <p className="mt-3 text-ink-500 max-w-md mx-auto">
+          We're having trouble accessing SEC EDGAR data right now. Please try again in a few moments, or visit the SEC website directly.
+        </p>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-ink-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-ink-800">
+            ← Back home
+          </Link>
+          <a
+            href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cik.replace(/^0+/, '')}&type=13F&dateb=&owner=include&count=40`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-ink-200 px-5 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50"
+          >
+            View on SEC EDGAR ↗
+          </a>
+        </div>
+      </div>
+    );
   }
   const filings = profile.filings.filter(
     (f) => f.form === "13F-HR" || f.form === "13F-HR/A"
