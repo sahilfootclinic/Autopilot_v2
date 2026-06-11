@@ -14,7 +14,7 @@ import { PopularRow } from "@/components/PerformerRow";
 import { TopPerformers, type PerfRow } from "@/components/TopPerformers";
 import { BrowseTabs } from "@/components/BrowseTabs";
 import { WatchlistSection } from "@/components/WatchlistSection";
-import { BitcoinCoin } from "@/components/BitcoinCoin";
+import { HeroSection } from "@/components/HeroSection";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { PHOTOS } from "@/data/photoManifest";
 import { getPerformanceForAll } from "@/lib/performance";
@@ -67,7 +67,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero />
+      <HeroSection />
 
       <WatchlistSection all={allEntries} />
 
@@ -117,18 +117,6 @@ export default async function HomePage() {
   );
 }
 
-function Hero() {
-  return (
-    <section className="hero-gradient">
-      <div className="mx-auto max-w-page px-4 sm:px-6 pt-16 pb-24 sm:pt-20 sm:pb-28 md:pt-28 md:pb-36 text-center">
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tight text-ink-900 leading-[1.04]">
-          Follow <span className="gradient-text">The Money</span>
-          <BitcoinCoin className="btc-coin-svg" image={PHOTOS["bitcoin"]} />
-        </h1>
-      </div>
-    </section>
-  );
-}
 
 function Mag7Section({
   prices,

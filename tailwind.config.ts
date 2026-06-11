@@ -31,6 +31,8 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        inter: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        podium: ["FSP DEMO - PODIUM Sharp 4.11", "serif"],
       },
       maxWidth: {
         page: "1180px",
